@@ -1,0 +1,392 @@
+---
+title: "Homework 3"
+author: "Yiming Wang"
+date: "Due @ 5pm on October 20, 2017"
+header-includes:
+  - \usepackage{bm}
+  - \newcommand{\Real}{\mathbb{R}}
+  - \newcommand{\dom}{{\bf dom}\,}
+  - \newcommand{\Tra}{^{\sf T}} % Transpose
+  - \newcommand{\Inv}{^{-1}} % Inverse
+  - \def\vec{\mathop{\rm vec}\nolimits}
+  - \def\sweep{\mathop{\rm sweep}\nolimits}
+  - \newcommand{\diag}{\mathop{\rm diag}\nolimits}
+  - \newcommand{\tr}{\operatorname{tr}} % Trace
+  - \newcommand{\epi}{\operatorname{epi}} % epigraph
+  - \newcommand{\V}[1]{{\bm{\mathbf{\MakeLowercase{#1}}}}} % vector
+  - \newcommand{\VE}[2]{\MakeLowercase{#1}_{#2}} % vector element
+  - \newcommand{\Vn}[2]{\V{#1}^{(#2)}} % n-th vector
+  - \newcommand{\Vtilde}[1]{{\bm{\tilde \mathbf{\MakeLowercase{#1}}}}} % vector
+  - \newcommand{\Vhat}[1]{{\bm{\hat \mathbf{\MakeLowercase{#1}}}}} % vector
+  - \newcommand{\VtildeE}[2]{\tilde{\MakeLowercase{#1}}_{#2}} % vector element
+  - \newcommand{\M}[1]{{\bm{\mathbf{\MakeUppercase{#1}}}}} % matrix
+  - \newcommand{\ME}[2]{\MakeLowercase{#1}_{#2}} % matrix element
+  - \newcommand{\Mtilde}[1]{{\bm{\tilde \mathbf{\MakeUppercase{#1}}}}} % matrix
+  - \newcommand{\Mhat}[1]{{\bm{\hat \mathbf{\MakeUppercase{#1}}}}} % matrix
+  - \newcommand{\Mcheck}[1]{{\bm{\check \mathbf{\MakeUppercase{#1}}}}} % matrix
+  - \newcommand{\Mbar}[1]{{\bm{\bar \mathbf{\MakeUppercase{#1}}}}} % matrix
+  - \newcommand{\Mn}[2]{\M{#1}^{(#2)}} % n-th matrix
+output: pdf_document
+---
+
+**Part 1.** Let $\V{y} = \M{X}\V{\beta} + \V{w}$, where $\V{y} \in \Real^n, \M{X} \in \Real^{n \times p}$, $\V{\beta} \in \Real^p$, and $\VE{w}{i}$ are i.i.d. random vectors with zero mean and variance $\sigma^2$. Recall that the ridge regression estimate is given by
+
+$$
+\Vhat{\beta}_\lambda = \underset{\V{\beta}}{\arg\min}\; \frac{1}{2}\lVert \V{y} - \M{X}\V{\beta} \rVert_2^2 + \frac{\lambda}{2} \lVert \V{\beta} \rVert_2^2.
+$$
+
+1. Show that the variance of $\Vhat{\beta}_\lambda$ is given by
+
+$$
+\sigma^2 \M{W}\M{X}\Tra\M{X}\M{W},
+$$
+where $\M{W} = (\M{X}\Tra\M{X} + \lambda\M{I})\Inv$.
+
+**Answer:**
+
+Proof:
+From the equation, $\V{\beta_{\lambda}}$ satisfies 
+$$
+-\M{X^T}(\V{y}-\M{X}\V{\beta_{\lambda}})+\lambda\V{\beta_{\lambda}}=0
+$$
+Thus, we have 
+$$
+\V{\beta_{\lambda}}=(\M{X^T}\M{X}+\lambda\M{I})^{-1}\M{X}^{T}\V{y}=\M{W}\M{X}^T\V{y}
+$$
+So,
+$$
+var(\V{\beta_{\lambda}})=\M{W}\M{X}^Tvar(\V{y})\M{X}\M{W}^T
+$$
+Since $var(\V{y})=var(\M{X}\V{\beta}+\V{w})=var(\V{w})=\sigma^2\M{I}$,
+we have $var(\V{\beta_{\lambda}})=\sigma^2\M{W}\M{X}^T\M{X}\M{W}^T$.
+
+2. Show that the bias of $\Vhat{\beta}_\lambda$ is given by
+
+$$
+- \lambda\M{W}\V{\beta}
+$$
+
+**Answer:**
+
+Proof:
+
+$E(\V{\hat\beta_{\lambda}})-\V{\beta}=\M{W}\M{X^TX}\V{\beta}-\V{\beta}=(\M{W}\M{X^TX}-\M{I})\V{\beta}$
+
+We only need to prove $(\M{X^TX+\lambda\M{I}})^{-1}\M{X^TX}-\M{I}=-\lambda(\M{X^TX+\lambda\M{I}})^{-1}$.
+
+Since $((\M{X^TX+\lambda\M{I}})^{-1}\M{X^TX}-\M{I})(\M{X^TX+\lambda\M{I}})=\M{X^TX}-(\M{X^TX}+\lambda\M{I})=-\lambda\M{I}$, we have the equation above holds.
+
+
+3. A natural question is how to choose the tuning parameter $\lambda$. Several classes of solutions See Efron paper.
+
+The degrees of freedom of a linear estimator $\Vhat{y} = \M{S}\V{y}$ is given by $\tr(\M{S})$. Ridge regression provides a linear estimator of the observed response $\V{y}$ where $\M{S} = \M{X}(\M{X}\Tra\M{X} + \lambda\M{I})\Inv\M{X}\Tra$. Show that the degrees of freedom of the ridge estimator is given by
+
+$$
+\sum_i \frac{\sigma_i^2}{\sigma_i^2 + \lambda},
+$$
+where $\sigma_i$ is the $i$th singular value of $\M{X}$.
+
+**Answer:**
+
+Proof:
+we need to prove $tr(\M{X}(\M{X^TX}+\lambda\M{I})^{-1}\M{X})=\sum_i \frac{\sigma_i^2}{\sigma_i^2 + \lambda}$.
+
+We have $\M{SVD}$ decomposition of $\M{X}$, which is $\M{X}=\M{UDV^T}$, where the square matrix $\M{U}$ and $\M{V}$ satisfy $\M{V^TV}=\M{I}$ and $\M{U^TU}=\M{I}$.
+
+Thus,
+$LHS=tr(\M{UDV^T}(\M{VD^TU^TUDV^T}+\lambda\M{I})^{-1}\M{VD^TU^T})=tr(\M{UDV^T}(\M{VD^TDV^T+\lambda\M{I}})^{-1}\M{VD^TU^T})=tr(\M{DV^T}(\M{VD^TDV^T+\lambda\M{I}})^{-1}\M{VD^TU^TU})=tr(\M{DV^T}(\M{VD^TDV^T+\lambda\M{I}})^{-1}\M{VD^T})=tr(\M{V}^{-1}(\M{VD^TDV^T+\lambda\M{I}})^{-1}(\M{V^T}^{-1})\M{D^T})=tr([\M{V}^T(\lambda\M{I}+\M{VD^TDV^T}\M{V})]^{-1}\M{D^TD})=tr((\lambda\M{I}+\M{D^TD})^{-1}\M{D^TD})=\sum_i \frac{\sigma_i^2}{\sigma_i^2 + \lambda}=RHS$.
+
+Therefore, the equation holds.
+
+\newpage
+
+**Part 2.** Ridge Regression.
+
+You will next add an implementation of the ridge regression to your R package.
+
+Please complete the following steps.
+
+**Step 0:** Make a file called `ridge.R` in your R package. Put it in the R subdirectory, namely we should be able to see the file at github.ncsu.edu/unityidST758/unityidST758/R/ridge.R
+
+**Step 1:** Write a function `ridge_regression` that computes the ridge regression coefficient estimates for a sequence of regularization parameter values $\lambda$.
+
+It should return an error message
+
+- if the response variable $\V{y} \in \Real^n$ and the design matrix $\M{X} \in \Real^{n \times p}$ are not conformable
+- if the tuning parameters are negative
+
+Please use the `stop` function. 
+```{r}
+ridge_regression <- function(y, X, lambda) {
+  # check conformable
+  if(length(y)!=nrow(X)) stop("not conformable");
+  # check tuning parameter
+  if(length(which(lambda<0))>0) stop("negative tuning parameter exists")
+  
+  p=ncol(X)
+  length_lambda=length(lambda)
+  result_beta=matrix(NA,nrow=p,ncol=length_lambda)
+  for(i in 1:length_lambda)
+   result_beta[,i]=solve(t(X)%*%X+lambda[i]*diag(1,p))%*%t(X)%*%y
+  
+  return(result_beta) # each col is the beta_est for a lambda
+  }
+```
+
+
+**Step 3:** Write a unit test function `test-ridge` that
+
+- checks the error messages for your `ridge_regression` function
+- checks the correctness of the estimated regression coefficients produced by `ridge_regression` function. Given data $(\V{y},\M{X})$, recall that $\V{b}$ is the ridge estimate with regularization parameter $\lambda$ if and only if
+
+$$
+(\M{X}\Tra\M{X} + \lambda\M{I})\V{b} = \M{X}\Tra\V{b}.
+$$
+
+**Step 4:** Construct three poorly conditioned multiple linear regression problems, with design matrices with condition numbers of 100, 1000, and 10000. Write in this Markdown file, using nice notation the problem set up.
+
+To construct a design matrix with condition number of 100, we can choose a diagonal matrix with smallest element of 1 and the largest element of 100 in the diag.
+
+To construct a design matrix with condition number of 1000, we can choose a diagonal matrix with smallest element of 1 and the largest element of 1000 in the diag.
+
+To construct a design matrix with condition number of 10000, we can choose a diagonal matrix with smallest element of 1 and the largest element of 10000 in the diag.
+
+
+```{r}
+n=5;diag_element=runif(n-2,min=1,max=100)
+A100=diag(c(1,diag_element,100),n)
+A100
+
+n=5;diag_element=runif(n-2,min=1,max=1000)
+A1000=diag(c(1,diag_element,1000),n)
+A1000
+
+n=5;diag_element=runif(n-2,min=1,max=10000)
+A10000=diag(c(1,diag_element,10000),n)
+A10000
+```
+
+**Step 5:** Solve the three regression problems you constructed in Step 4.
+
+```{r}
+y=matrix(runif(n,min=-100,max=100),nrow=n,ncol=1)
+beta100=ridge_regression(y,A100,0)
+beta1000=ridge_regression(y,A1000,0)
+beta10000=ridge_regression(y,A10000,0)
+
+
+y
+beta100
+beta1000
+beta10000
+```
+
+
+**Step 6:** Solve a perturbed linear regression problem, i.e. add noise to the design matrix and response variable. Solve the perturbed systems and report the relative error between the solutions to the perturbed systems and the solutin you obtained in Step 5. How does this relative error compare to the worst case bounds derived in class?
+
+
+Add noise to the design matrix
+```{r}
+delta_X=matrix(rep(0,25),nrow=5,ncol=5)
+delta_X[1,1]=10^(-5)
+
+#condition number is 100
+new_A100=delta_X+A100
+new_beta100=ridge_regression(y,new_A100,0)
+beta100=ridge_regression(y,A100,0)
+
+error_beta100_X=sqrt(sum((new_beta100-beta100)^2))
+relative_error_beta100_X=error_beta100_X/sqrt(sum((beta100)^2))
+
+#condition number is 1000
+new_A1000=delta_X+A1000
+new_beta1000=ridge_regression(y,new_A1000,0)
+beta1000=ridge_regression(y,A1000,0)
+
+error_beta1000_X=sqrt(sum((new_beta1000-beta1000)^2))
+relative_error_beta1000_X=error_beta1000_X/sqrt(sum((beta1000)^2))
+
+#condition number is 10000
+new_A10000=delta_X+A10000
+new_beta10000=ridge_regression(y,new_A10000,0)
+beta10000=ridge_regression(y,A10000,0)
+
+error_beta10000_X=sqrt(sum((new_beta10000-beta10000)^2))
+relative_error_beta10000_X=error_beta10000_X/sqrt(sum((beta10000)^2))
+
+#compare
+relative_error=c(relative_error_beta100_X,relative_error_beta1000_X,relative_error_beta10000_X)
+error_betaX=c(error_beta100_X,error_beta1000_X,error_beta10000_X)
+which(relative_error==max(relative_error))
+
+```
+
+
+
+
+Add noise to the response variable.
+```{r}
+delta_y=c(10^(-5),rep(0,4))
+new_y=delta_y+y
+
+#condition number is 100
+new_beta100_y=ridge_regression(new_y,A100,0)
+beta100=ridge_regression(y,A100,0)
+
+error_beta100_y=sqrt(sum((new_beta100_y-beta100)^2))
+relative_error_beta100_y=error_beta100_y/sqrt(sum((beta100)^2))
+
+#condition number is 1000
+new_beta1000_y=ridge_regression(new_y,A1000,0)
+beta1000=ridge_regression(y,A1000,0)
+
+error_beta1000_y=sqrt(sum((new_beta1000_y-beta1000)^2))
+relative_error_beta1000_y=error_beta1000_y/sqrt(sum((beta1000)^2))
+
+#condition number is 10000
+new_beta10000_y=ridge_regression(new_y,A10000,0)
+beta10000=ridge_regression(y,A10000,0)
+
+error_beta10000_y=sqrt(sum((new_beta10000_y-beta10000)^2))
+relative_error_beta10000_y=error_beta10000_y/sqrt(sum((beta10000)^2))
+
+#compare
+error_beta_y=c(error_beta100_y,error_beta1000_y,error_beta10000_y)
+relative_error_y=c(relative_error_beta100_y,relative_error_beta1000_y,relative_error_beta10000_y)
+which(relative_error_y==max(relative_error_y))
+```
+
+We can find that the larger the condition number is, the larger relative error the matrix will lead to.
+
+
+```{r}
+small=max(norm(delta_X, type = "2")/norm(A100,type="2"),sqrt(sum(delta_y^2))/sqrt(sum(y^2)))
+u=small*10000
+bound=2*u/(1-u)
+```
+The worst case bounds here is `r bound`.
+
+
+
+
+**Step 7:** Solve ridge penalized versions of the perturbed multiple linear regression problems for several values of the tuning parameter $\lambda$. Plot the relative error for the three problems as a function of $\lambda$.
+
+Add noise to design matrices
+```{r}
+delta_X=matrix(rep(0,25),nrow=5,ncol=5)
+delta_X[1,1]=10^(-5)
+
+lambda=10^(seq(from=-100,to=40,by=1))
+lambda_length=length(lambda)
+
+# condition number is 100
+error100_X=numeric(lambda_length)
+relative_error100_X=numeric(lambda_length)
+
+new_A100=delta_X+A100
+for(i in 1:lambda_length){
+  new_beta100=ridge_regression(y,new_A100,lambda[i])
+  original_beta100=ridge_regression(y,new_A1000,lambda[i])
+  error100_X[i]=sqrt(sum((new_beta100-original_beta100)^2))
+  relative_error100_X[i]=error_beta100_X/sqrt(sum((original_beta100)^2))
+}
+
+# condition number is 1000
+new_A1000=delta_X+A1000
+error1000_X=numeric(lambda_length)
+relative_error1000_X=numeric(lambda_length)
+
+for(i in 1:lambda_length){
+  new_beta1000=ridge_regression(y,new_A1000,lambda[i])
+  solve(t(new_A1000)%*%new_A1000+lambda[i]*diag(1,nrow=5,ncol=5))%*%t(new_A1000)%*%y
+  original_beta1000=solve(t(A1000)%*%A1000+lambda[i]*diag(1,nrow=5,ncol=5))%*%t(A1000)%*%y
+  error1000_X[i]=sqrt(sum((new_beta1000-original_beta1000)^2))
+  relative_error1000_X[i]=error_beta1000_X/sqrt(sum((original_beta1000)^2))
+}
+
+
+# condition number is 10000
+new_A10000=delta_X+A10000
+error10000_X=numeric(lambda_length)
+relative_error10000_X=numeric(lambda_length)
+
+for(i in 1:lambda_length){
+  new_beta10000=solve(t(new_A10000)%*%new_A10000+lambda[i]*diag(1,nrow=5,ncol=5))%*%t(new_A10000)%*%y
+  original_beta10000=solve(t(A10000)%*%A10000+lambda[i]*diag(1,nrow=5,ncol=5))%*%t(A10000)%*%y
+  error10000_X[i]=sqrt(sum((new_beta10000-original_beta10000)^2))
+  relative_error10000_X[i]=error_beta10000_X/sqrt(sum((original_beta10000)^2))
+}
+
+
+
+#plot
+plot(x=log(lambda,base=10),y=log(relative_error100_X),ylim=c(-20,100))
+lines(x=log(lambda,base=10),y=log(relative_error100_X),col="red")
+
+plot(x=log(lambda,base=10),y=log(relative_error1000_X),ylim=c(-20,100))
+lines(x=log(lambda,base=10),y=log(relative_error1000_X),col="blue")
+
+plot(x=log(lambda,base=10),y=log(relative_error10000_X),ylim=c(-20,100))
+lines(x=log(lambda,base=10),y=log(relative_error10000_X),col="green")
+
+```
+
+
+
+Add noise to response variable
+```{r}
+delta_y=c(10^(-5),rep(0,4))
+new_y=delta_y+y
+
+lambda=10^(seq(from=-100,to=40,by=1))
+lambda_length=length(lambda)
+
+# condition number is 100
+error100=numeric(lambda_length)
+relative_error100=numeric(lambda_length)
+for(i in 1:lambda_length){
+new_beta100_y=ridge_regression(new_y,A100,lambda[i])
+original_beta100_y=ridge_regression(y,A100,lambda[i])
+error100[i]=sqrt(sum((new_beta100_y-original_beta100_y)^2))
+relative_error100[i]=error100[i]/sqrt(sum((original_beta100_y)^2))
+}
+
+plot(x=log(lambda,base=10),y=log(relative_error100),ylim=c(-40,40))
+lines(x=log(lambda,base=10),y=log(relative_error100))
+
+
+# condition number is 1000
+error1000=numeric(lambda_length)
+relative_error1000=numeric(lambda_length)
+for(i in 1:lambda_length){
+new_beta1000_y=ridge_regression(new_y,A1000,lambda[i])
+original_beta1000_y=ridge_regression(y,A1000,lambda[i])
+error1000[i]=sqrt(sum((new_beta1000_y-original_beta1000_y)^2))
+relative_error1000[i]=error1000[i]/sqrt(sum((original_beta1000_y)^2))
+}
+
+plot(x=log(lambda,base = 10),y=log(relative_error1000),col="red")
+lines(x=log(lambda,base=10),y=log(relative_error1000),col="red")
+
+# condition number is 10000
+error10000=numeric(lambda_length)
+relative_error10000=numeric(lambda_length)
+for(i in 1:lambda_length){
+new_beta10000_y=ridge_regression(new_y,A10000,lambda[i])
+original_beta10000_y=ridge_regression(y,A10000,lambda[i])
+error10000[i]=sqrt(sum((new_beta10000_y-original_beta10000_y)^2))
+relative_error10000[i]=error10000[i]/sqrt(sum((original_beta10000_y)^2))
+}
+
+plot(x=log(lambda,base=10),y=log(relative_error10000),col="blue")
+lines(x=log(lambda,base=10),y=log(relative_error10000),col="blue")
+
+```
+
+
+
+
+
+
+
+

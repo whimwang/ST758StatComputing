@@ -1,0 +1,318 @@
+---
+title: "Homework 5"
+author: "Yiming Wang"
+date: "Due @ 11:59pm on November 20, 2017"
+output:
+  html_document:
+    df_print: paged
+header-includes:
+- \usepackage{bm}
+- \newcommand{\Real}{\mathbb{R}}
+- \newcommand{\dom}{{\bf dom}\,}
+- \newcommand{\Tra}{^{\sf T}} % Transpose
+- \newcommand{\Inv}{^{-1}} % Inverse
+- \def\vec{\mathop{\rm vec}\nolimits}
+- \newcommand{\diag}{\mathop{\rm diag}\nolimits}
+- \newcommand{\tr}{\operatorname{tr}} % Trace
+- \newcommand{\epi}{\operatorname{epi}} % epigraph
+- \newcommand{\V}[1]{{\bm{\mathbf{\MakeLowercase{#1}}}}} % vector
+- \newcommand{\VE}[2]{\MakeLowercase{#1}_{#2}} % vector element
+- \newcommand{\Vn}[2]{\V{#1}^{(#2)}} % n-th vector
+- \newcommand{\Vtilde}[1]{{\bm{\tilde \mathbf{\MakeLowercase{#1}}}}} % vector
+- \newcommand{\Vhat}[1]{{\bm{\hat \mathbf{\MakeLowercase{#1}}}}} % vector
+- \newcommand{\VtildeE}[2]{\tilde{\MakeLowercase{#1}}_{#2}} % vector element
+- \newcommand{\M}[1]{{\bm{\mathbf{\MakeUppercase{#1}}}}} % matrix
+- \newcommand{\ME}[2]{\MakeLowercase{#1}_{#2}} % matrix element
+- \newcommand{\Mtilde}[1]{{\bm{\tilde \mathbf{\MakeUppercase{#1}}}}} % matrix
+- \newcommand{\Mbar}[1]{{\bm{\bar \mathbf{\MakeUppercase{#1}}}}} % matrix
+- \newcommand{\Mn}[2]{\M{#1}^{(#2)}} % n-th matrix
+---
+
+**Part 1.** We will revisit the optimizatoin problem involved in fitting a Huberized support vector machine (HSVM) from the perspective of Newton's method. The following description of the HSVM is from the previous homework.
+
+The SVM is a classifier. Given a new sample's covariate vector, we wish to predict whether the sample is from class -1 or class 1. We set some notation. Let $\V{x}_i \in \Real^{p}, y_i \in \{-1,1\}$ for $i=1, \ldots, n$. Let $\M{X} \in \Real^{n \times p}$ denote the matrix with $\V{x}_i$ as its $i$th row.
+To train the classifier, we seek to minimize the following loss function:
+
+$$
+\ell(\V{\beta}) = \sum_{i=1}^n \phi(\VE{y}{i}(\V{x}_i\Tra\V{\beta})) + \frac{\lambda}{2}\lVert\V{\beta}\rVert_2^2,
+$$
+
+where $\phi$ is a smoothed hinge loss function:
+
+$$
+\phi(t) = \begin{cases}
+0 & \text{if $t > 1$} \\
+\frac{(1-t)^2}{2\delta} & \text{if $t \in (1 - \delta, 1]$} \\
+1 - t - \frac{\delta}{2} & \text{if $t \leq 1 - \delta$}
+\end{cases}
+$$
+where $\delta > 0$ is a user defined constant.
+
+1. Prove that $\ell(\V{\beta})$ attains a global minimum.
+
+Answer: To show $l(\beta)$ has a global minimum, it is enough to show $l(\beta)$ is continuous and coercive. Since if $\lambda=0$, we do not need to add penalty, which doesn't make sense here. So we consider $\lambda>0$. We notice that $\phi(t)$ is continuous. And also $||\beta||^2$ is continous, so $l(\beta)$ is continous. And by the definition of coercivity:
+$$
+lim_{||x||\to \infty}f(x)=+\infty
+$$
+So when $||\beta||\to\infty$,$||\beta||_2^2 \to \infty$. And since $\phi(t)>0$, so we can see that $l(\beta)$ goes to infinity. So it is coercive. Then we can get that $l(\beta)$ has global minimum.
+
+2. Assume $\lambda > 0$. Is the global minimizer of $\ell(\V{\beta})$ unique? Give a proof of your claim.
+
+Answer: Hessian matrix is positive definite so the loss function is strictly convex. If the global minimizer is not unique, for example $\beta_1$ and $\beta_2$ are two global minimizer with $\beta_1\neq\beta_2$ and $\phi(\beta_1)=\phi(\beta_2)$, then we can have $\phi(\alpha\beta_1+(1-\alpha)\beta_2)<\alpha\phi(\beta_1)+(1-\alpha)\phi(\beta_2)=\phi(\beta_1)$. So $\beta_1$ and $\beta_2$ are not two global minimizer. Contradiction!.
+Therefore, the global minimizer is unique.
+
+3. Note that the $\ell(\V{\beta})$ is not twice differentiable everywhere since $\phi(t)$ is not twice differentiable at $t = 1$ and at $1 - \delta$. Nonetheless, we can compute the following positive definite matrix $\M{H}(\V{\beta})$.
+
+$$
+\M{H}(\V{\beta}) = \lambda\M{I} + \M{X}\Tra\M{W}(\V{\beta})\M{X},
+$$
+where $\M{W}(\V{\beta})$ is a diagonal matrix whose $i$th diagonal entry is
+
+$$
+[\M{W}(\V{\beta})]_i = \begin{cases}
+0 & \text{if $\VE{y}{i}\V{x}_i\Tra\V{\beta} > 1$} \\
+\delta\Inv & \text{if $\VE{y}{i}\V{x}_i\Tra\V{\beta} \in (1 - \delta, 1]$} \\
+0 & \text{if $\VE{y}{i}\V{x}_i\Tra\V{\beta} \leq 1 - \delta$} \\
+\end{cases}
+$$
+Suppose $n > p$. How many flops is it to compute the quasi-Newton step $\Delta \V{\beta}_{\text{nt}}$, via the Cholesky decomposition, where the quasi-Newton step $\Delta \V{\beta}_{\text{nt}}$ is the solution to the linear system
+
+$$
+(\lambda \M{I} + \M{X}\Tra\M{W}(\V{\beta})\M{X})\Delta \V{\beta}_{\text{nt}} = \nabla \ell(\V{\beta})?
+$$
+
+Please include in your flop calculation the cost to form the matrix $\M{H}(\V{\beta})$, to do the Cholesky decomposition, as well as the cost to solve the linear system.
+
+Answer:
+
+To get $\M{X^TW}$, since W is a diagonal matrix, it needs $O(pn)$ flops.
+
+To get $\M{X^TWX}$, it needs $O(np^2)$ flops.
+
+To do Cholesky decomposition to a $p\times p$ matrix,it needs $O(p^3)$ flops.
+
+To get the solution of $\M{R^T}\V{x}=l$, it needs $O(p^2)$ flops.
+
+To get the solution of $\M{R}\V{x}=l$, it needs $O(p^2)$ flops.
+
+So the total needs $O(np^2+p^3)$, which is $O(np^2)$ when $n>p$.
+
+
+4. Suppose that $n \ll p$. Use the Sherman–Morrison–Woodbury identity to write down an equivalent expression for the inverse of the matrix $\M{H}(\V{\beta})$.
+
+When all the diagonal entries are nonzero,
+
+$(\lambda\M{I}+\M{X}^T\M{W}\M{X})^{-1}=\frac{1}{\lambda}\M{I}-\frac{1}{\lambda^2}\M{X}^T(\M{W}^{-1}+\frac{1}{\lambda}\M{XX^T})^{-1}\M{X}$.
+
+$(\M{W}^{-1}+\frac{1}{\lambda}\M{XX^T})^{-1}=\M{W}-\M{WX}(\M{I}+\M{X}^T\M{W}\M{X})^{-1}\M{X}^T\M{W}$
+
+Therefore,$(\lambda\M{I}+\M{X}^T\M{W}\M{X})^{-1}=\frac{1}{\lambda}\M{I}-\frac{1}{\lambda^2}\M{X}^T(\M{W}-\M{WX}(\M{I}+\M{X}^T\M{W}\M{X})^{-1}\M{X}^T\M{W})\M{X}$.
+
+When some the diagonal entries are zero,
+
+$(\lambda\M{I}+\M{X}^T\M{W}\M{X})^{-1}=\frac{1}{\lambda}\M{I}-\frac{1}{\lambda}\M{I}\cdot\M{X}^T(\M{I}+\M{WX}\cdot\frac{1}{\lambda}\M{IX}^{T})^{-1}\M{WX}\cdot\frac{1}{\lambda}\M{I}=\frac{1}{\lambda}\M{I}-\frac{1}{\lambda^2}\M{X}^{T}(\M{I}+\frac{1}{\lambda}\M{WXX^{T}})^{-1}\M{WX}$
+
+5. If we use a Cholesky decomposition to solve the smaller linear system obtained in problem 4, how many flops is it to compute the Newton step now? As in Problem 3, this includes all computations, e.g. forming matrices, computing decompositions, solving linear systems, etc.
+
+
+
+To get $\M{XWX^T}$, it needs $O(n^2p)$ flops.
+
+To get $\M{XWX^T}+\M{I}$, it needs $O(n)$ flops since it is a diagonal matrix.
+
+To get Cholesky decomposition of $\M{XWX^T}+\M{I}$, it needs $O(n^3)$ flops.
+
+To get $(\M{R^TR})^{-1}\M{X}^T$, it needs $O(n^2p)$ flops.
+
+To get $\M{WX}$, it needs $O(np)$ flops.
+
+To get $\M{WX}(\M{R^TR})^{-1}\M{X}^T$, it needs $O(n^2p)$ flops.
+
+To get $\M{WX}(\M{R^TR})^{-1}\M{X}^T\M{W}$, it needs $O(n^2)$ flops.
+
+To get $\M{X}^T(\M{W}-\M{WX}(\M{I}+\M{X}^T\M{W}\M{X})^{-1}\M{X}^T\M{W})X$, it needs $O(pn^2+p^2n)$.
+
+The total flops is $O(n^2p)$ since $n<<p$.
+
+\newpage
+
+**Part 2.** Damped quasi-Newton Methods
+
+You will next add an implementation of the HSVM fit by Damped quasi-Newton method to your R package. Your function will use both a step-size chosen by backtracking. You will also run some experiments using L-BFGS for comparison.
+
+Please complete the following steps.
+
+**Step 0:** Make a file called `HSVM_2nd_order.R` in your R package. Put it in the R subdirectory, namely we should be able to see the file at github.ncsu.edu/unityidST758/unityidST758/R/HSVM_2nd_order.R
+
+**Step 1:** Write a function "newton_step_naive" that computes the solution $\Delta \beta_{\text{nt}}$ to the linear system
+$$
+(\lambda \M{I} + \M{X}\Tra\M{W}(\V{\beta})\M{X})\Delta \V{\beta}_{\text{nt}} = \nabla \ell(\V{\beta}).
+$$
+Use the **chol**, **backsolve**, and **forwardsolve** functions in the base package.
+
+```{r, echo=TRUE}
+
+```
+Your function should return the quasi-Newton step $\Delta \V{\beta}_{\text{nt}}$.
+
+**Step 2:** Write a function "newton_step_smw" that computes the quasi-Newton step using the Sherman-Morrison-Woodbury identity.
+
+```{r, echo=TRUE}
+
+```
+Your function should return the quasi-Newton step $\Delta \V{\beta}_{\text{nt}}$.
+
+**Step 3** Write a function "backtrack_descent"
+
+```{r, echo=TRUE}
+
+```
+Your function should return the selected step-size.
+
+**Step 4:** Write a function "hsvm_newton" to train an HSVM using damped quasi-Newton's method. Reuse your "fx_hsvm" and gradf_hsvm" functions from Homework 4. Terminate the algorithm when half the square of the quasi-Newton decrement falls below the tolerance parameter
+
+```{r, echo=TRUE}
+
+```
+
+**Step 5:** Train an HSVM classifier (with $\lambda = 1e-4$) on the following simulated 3 data sets below using the quasi-Newton method and the naive quasi-Newton step calculation. Record the times for each using **system.time**.
+
+```{r, echo=TRUE}
+library("ywang225ST758")
+set.seed(12345)
+## Data set 1
+n <- 200
+p <- 400
+
+X1 <- matrix(rnorm(n*p),n,p)
+beta0 <- matrix(rnorm(p),p,1)
+y1 <- 2*(runif(n) <= plogis(X1%*%beta0)) - 1
+  
+
+## Data set 2
+p <- 800
+X2 <- matrix(rnorm(n*p),n,p)
+beta0 <- matrix(rnorm(p),p,1)
+y2 <- 2*(runif(n) <= plogis(X2%*%beta0)) - 1
+
+## Data set 3
+p <- 1600
+X3 <- matrix(rnorm(n*p),n,p)
+beta0 <- matrix(rnorm(p),p,1)
+y3 <- 2*(runif(n) <= plogis(X3%*%beta0)) - 1
+
+time_naive=numeric(3)
+a=system.time(hsvm_newton(X1,y1,b=matrix(0,400,1),delta=0.5,naive=1))
+a
+time_naive[1]=a[1]
+b=system.time(hsvm_newton(X2,y2,b=matrix(0,800,1),delta=0.5,naive=1))
+b
+time_naive[2]=b[1] 
+c=system.time(hsvm_newton(X3,y3,b=matrix(0,1600,1),delta=0.5,naive=1))
+c
+time_naive[3]=c[1]
+time_naive
+
+
+```
+
+**Step 6:** Train an HSVM classifier (with $\lambda = 1e-4$) on the simulated 3 data sets using the quasi-Newton method and the quasi-Newton step calculated using the Sherman-Morrison-Woodbury identity. Record the times for each using **system.time**.
+
+```{r}
+time_formula=numeric(3)
+a=system.time(hsvm_newton(X1,y1,b=matrix(0,400,1),delta=0.5,naive=2))
+a
+time_formula[1]=a[1]
+b=system.time(hsvm_newton(X2,y2,b=matrix(0,800,1),delta=0.5,naive=2))
+b
+time_formula[2]=b[1] 
+c=system.time(hsvm_newton(X3,y3,b=matrix(0,1600,1),delta=0.5,naive=2))
+c
+time_formula[3]=c[1]
+time_formula
+
+
+```
+
+**Step 7:** Plot all six run times against $p$. Comment on the how the two run-times scale with $p$ and compare it to what you know about the computational complexity for the two ways to compute the quasi-Newton update. 
+
+```{r}
+p_vector=c(400,800,1600)
+plot(p_vector,time_naive,ylim=c(0,25))
+lines(p_vector,time_naive,col="red")
+points(p_vector,time_formula)
+lines(p_vector,time_formula)
+legend("topleft",legend=c("naive_newton","formula"),col=c("red","black"),lty=c(1,1))
+
+```
+
+As we can see that the time for naive method is proportional to $p^2$ while the time when using the formula is proportional to $p$.
+
+**Step 8:** Train an HSVM classifier (with $\lambda = 1e-4$) on the simulated 3 data sets using L-BFGS as implemented in the `lbfgs` R package. Record the times for each using **system.time**. Use $m = 5, 10, 20$. How do these run times compare with those obtained by using your quasi-Newton method implemented in `hsvm_newton`?
+
+```{r, echo=TRUE}
+library(lbfgs)
+time=matrix(0,nrow=3,ncol=3)#each row for each p;each col for each m
+set.seed(12345)
+## Data set 1
+n <- 200
+p <- 400
+
+X1 <- matrix(rnorm(n*p),n,p)
+beta0 <- matrix(rnorm(p),p,1)
+y1 <- 2*(runif(n) <= plogis(X1%*%beta0)) - 1
+
+fx1<-function(x){return(fx_hsvm(y1, X1, x, 0.5, lambda=1e-4))}
+
+gx1<-function(x){return(gradf_hsvm(y1, X1, x, 0.5, lambda=1e-4))}
+
+a=system.time(lbfgs(call_eval=fx1, call_grad=gx1,
+      vars=beta0, m=5, epsilon=1e-3, max_iterations=1e2))
+b=system.time(lbfgs(call_eval=fx1, call_grad=gx1,
+      vars=beta0, m=10, epsilon=1e-3, max_iterations=1e2))
+c=system.time(lbfgs(call_eval=fx1, call_grad=gx1,
+      vars=beta0, m=20, epsilon=1e-3, max_iterations=1e2))
+time[1,]=c(a[1],b[1],c[1])
+
+
+## Data set 2
+p <- 800
+X2 <- matrix(rnorm(n*p),n,p)
+beta0 <- matrix(rnorm(p),p,1)
+y2 <- 2*(runif(n) <= plogis(X2%*%beta0)) - 1
+
+fx2<-function(x){return(fx_hsvm(y2, X2, x, 0.5, lambda=1e-4))}
+
+gx2<-function(x){return(gradf_hsvm(y2, X2, x, 0.5, lambda=1e-4))}
+
+a=system.time(lbfgs(call_eval=fx2, call_grad=gx2,
+                    vars=beta0, m=5, epsilon=1e-3, max_iterations=1e2))
+b=system.time(lbfgs(call_eval=fx2, call_grad=gx2,
+                    vars=beta0, m=10, epsilon=1e-3, max_iterations=1e2))
+c=system.time(lbfgs(call_eval=fx2, call_grad=gx2,
+                    vars=beta0, m=20, epsilon=1e-3, max_iterations=1e2))
+time[2,]=c(a[1],b[1],c[1])
+
+## Data set 3
+p <- 1600
+X3 <- matrix(rnorm(n*p),n,p)
+beta0 <- matrix(rnorm(p),p,1)
+y3 <- 2*(runif(n) <= plogis(X3%*%beta0)) - 1
+
+fx3<-function(x){return(fx_hsvm(y3, X3, x, 0.5, lambda=1e-4))}
+gx3<-function(x){return(gradf_hsvm(y3, X3, x, 0.5, lambda=1e-4))}
+
+a=system.time(lbfgs(call_eval=fx3, call_grad=gx3,
+                    vars=beta0, m=5, epsilon=1e-3, max_iterations=1e2))
+b=system.time(lbfgs(call_eval=fx3, call_grad=gx3,
+                    vars=beta0, m=10, epsilon=1e-3, max_iterations=1e2))
+c=system.time(lbfgs(call_eval=fx3, call_grad=gx3,
+                    vars=beta0, m=20, epsilon=1e-3, max_iterations=1e2))
+time[3,]=c(a[1],b[1],c[1])
+
+rownames(time)=c("p=400","p=800","p=1600")
+colnames(time)=c("m=5","m=10","m=20")
+#each row for each p;each col for each m
+time
+```
+L-BFGS method is much faster than quasi-Newton method.

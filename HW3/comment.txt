@@ -1,0 +1,11 @@
+proofs 30/30
+
+codes and tests 20/20
+
+experiments 35/40
+step 6£ºyou should calculate and compare with the worst case bound. I don't quite understand what you calculated and you did not explain anything. -4
+
+
+
+step 7: plot is not good enough. expect error drop first and increase when lambda too large. I am not sure if your plot is locally, because the scale of change is too large. 
+-1

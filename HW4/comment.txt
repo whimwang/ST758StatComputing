@@ -1,0 +1,9 @@
+proof 28/30
+3. so is the hessian pd here?
+coding 20/20
+
+experiment 16/20
+no comments for both plots
+
+real data example 9/10
+should have some explanations

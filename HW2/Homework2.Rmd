@@ -1,0 +1,305 @@
+---
+title: "Homework 2"
+author: "Your Name"
+date: "Due @ 5pm on September 29, 2017"
+output:
+  pdf_document: default
+  html_document: default
+header-includes:
+- \usepackage{bm}
+- \newcommand{\Real}{\mathbb{R}}
+- \newcommand{\dom}{{\bf dom}\,}
+- \newcommand{\Tra}{^{\sf T}} % Transpose
+- \newcommand{\Inv}{^{-1}} % Inverse
+- \def\vec{\mathop{\rm vec}\nolimits}
+- \def\sweep{\mathop{\rm sweep}\nolimits}
+- \newcommand{\diag}{\mathop{\rm diag}\nolimits}
+- \newcommand{\tr}{\operatorname{tr}} % Trace
+- \newcommand{\epi}{\operatorname{epi}} % epigraph
+- \newcommand{\V}[1]{{\bm{\mathbf{\MakeLowercase{#1}}}}} % vector
+- \newcommand{\VE}[2]{\MakeLowercase{#1}_{#2}} % vector element
+- \newcommand{\Vn}[2]{\V{#1}^{(#2)}} % n-th vector
+- \newcommand{\Vtilde}[1]{{\bm{\tilde \mathbf{\MakeLowercase{#1}}}}} % vector
+- \newcommand{\Vhat}[1]{{\bm{\hat \mathbf{\MakeLowercase{#1}}}}} % vector
+- \newcommand{\VtildeE}[2]{\tilde{\MakeLowercase{#1}}_{#2}} % vector element
+- \newcommand{\M}[1]{{\bm{\mathbf{\MakeUppercase{#1}}}}} % matrix
+- \newcommand{\ME}[2]{\MakeLowercase{#1}_{#2}} % matrix element
+- \newcommand{\Mtilde}[1]{{\bm{\tilde \mathbf{\MakeUppercase{#1}}}}} % matrix
+- \newcommand{\Mhat}[1]{{\bm{\hat \mathbf{\MakeUppercase{#1}}}}} % matrix
+- \newcommand{\Mcheck}[1]{{\bm{\check \mathbf{\MakeUppercase{#1}}}}} % matrix
+- \newcommand{\Mbar}[1]{{\bm{\bar \mathbf{\MakeUppercase{#1}}}}} % matrix
+- \newcommand{\Mn}[2]{\M{#1}^{(#2)}} % n-th matrix
+---
+
+**Part 1.** 
+
+1. Let $\M{A} \in \Real^{m \times m}$ be a $k$-banded matrix, namely $\ME{A}{ij} = 0$ if $\lvert i - j \rvert > k$.
+
+```{r}
+set.seed(12345)
+k <- 3; m <- 10
+A <- matrix(rnorm(m**2), m, m)
+A <- A + t(A)
+A <- round(10*A)/10
+for (i in 1:m) {
+  for (j in 1:m) {
+    if (abs(i - j) > k) A[i,j] <- 0
+  }
+}
+A
+```
+
+The R snippet above constructs a `r k`-banded `r m`-by-`r m` matrix $\M{A}$. Suppose further that $\M{A}$ is positive definite and therefore admits a unique Cholesky decomposition $\M{A} = \M{R}\Tra\M{R}$ where $\M{R} \in \Real^{m \times m}$ is upper triangular.
+
+Prove that the banded Cholesky decomposition can be computed in $\mathcal{O}(nk^2)$ flops.
+
+**Answer:**
+
+Write your answer here.
+
+Proof:
+
+Step 1: we want to do decomposition like this.
+
+$$\begin{pmatrix}\alpha & \V{a}^T\\\V{a} & \M{A}_* \end{pmatrix}=\begin{pmatrix}\rho & \V{0}^T\\ \V{r} & \M{R}_*\end{pmatrix} 
+\begin{pmatrix}\rho & \V{r}^T\\ \V{0} & \M{R}_*^T\end{pmatrix}$$
+
+$$\begin{aligned}
+\rho&=\sqrt{\alpha}&&1 flop\\
+\V{r}&=\rho^{-1}\V{a}=(a_1,a_2,\cdots,a_{n-1})\cdot\frac{1}{\rho}=(a_1,a_2,\cdots,a_k,0,0,\cdots,0)\cdot\frac{1}{\rho}&&k flops\\
+\M{R}_*^T\M{R_*}&=\M{A}_*-\V{r}\V{r}^T=\begin{pmatrix}
+a_{*{1,1}} &\cdots & a_{*1,k} & 0 & \cdots & 0\\
+\vdots&\ddots&\vdots&\ddots&\ddots&\vdots\\
+a_{*k,1}&\cdots&a_{*k,k}&a_{*k,k+1}&\cdots&0\\
+a_{*k+1,1}&\cdots&a_{*k+1,k}&a_{*k+1,k+1}&\ddots&0\\
+\vdots&\ddots&\vdots&\vdots&\ddots&\vdots\\
+0&\cdots&a_{*n-1,n-k}&a_{*n-1,n-k+1}&\cdots&a_{*n-1,n-1}\\
+\end{pmatrix}-
+\begin{pmatrix}
+r_1r_1&\cdots&r_1r_k&0&\cdots&0\\
+\vdots&\ddots&\vdots&\vdots&\ddots&0\\
+r_kr_1&\cdots&r_kr_k&0&\cdots&0\\
+0&\cdots&0&0&\cdots&0\\
+\vdots&\ddots&\vdots&\vdots&\ddots&\vdots\\
+0&\cdots&0&0&\cdots&0
+\end{pmatrix}&&2k^2 flops
+\end{aligned}$$
+
+Thus, step 1 needs $(2k^2+k+1)$ flops.
+
+From step 1 to step $n-k-1$, each step needs $(2k^2+k+1)$ flops.
+
+Step $n-k$:
+$$\begin{aligned}
+\rho&=\sqrt{\alpha}&&1 flop\\
+\V{r}&=\rho^{-1}\V{a}=(a_1,a_2,\cdots,a_{k-1})\cdot\frac{1}{\rho}&&k-1  flops\\
+\M{R}_*^T\M{R_*}&=\M{A}_*-\V{r}\V{r}^T=\begin{pmatrix}
+a_{*{1,1}} & \cdots & a_{*1,k-1}\\
+a_{*2,1}   & \cdots & a_{*2,k-1}\\
+\vdots&\ddots&\vdots\\
+a_{*k-1,1}&\cdots&a_{*k-1,k-1}\\
+\end{pmatrix}-
+\begin{pmatrix}
+r_1r_1&\cdots&r_1r_{k-1}\\
+\vdots&\ddots&\vdots\\
+r_{k-1}r_1&\cdots&r_{k-1}r_{k-1}\\
+\end{pmatrix}&&2(k-1)^2 flops
+\end{aligned}$$
+
+Thus, step $n-k$ needs $(2(k-1)^2+(k-1)+1)$ flops.
+
+For step $i$, when $n-k \leq i \leq n$, it needs $(2(n-1-i)^2+(n-1-i)+1)$ flops.
+
+Therefore, all the n steps need $(2k^2+k+1)\cdot(n-k-1)+\sum_{i=n-k}^{i=n}(2(n-i-1)^2+(n-1-i)+1)$ flops, which is $O(k^2n+k^3)$. Since $k \leq n$, it needs $O(nk^2)$ flops.
+
+
+
+
+
+2. Prove that solving a linear system with the Cholesky factor matrix $\M{R}$ of a $k$-banded matrix $\M{A}$ is $\mathcal{O}(nk)$ flops.
+
+**Answer:**
+
+Write your answer here.
+ Proof:
+ $$
+ \begin{aligned}
+ \M{A}\V{x}&=&\V{y}\\
+ \M{R^TR}\V{x}&=&\V{y}\\
+ \end{aligned}
+ $$
+
+According to Problem 1, from step 1 to step $(n-k-1)$, the first k elements in $\V{r}$ calculated in each step may be nonzero while the rest elements must be zero. From step $(n-k)$ to step $n$, all the elements in $\V{r}$ in each step maybe nonzero. Therefore,$$\M{R}=\begin{pmatrix}r_{1,1} & r_{1,2} &\cdots & r_{1,k+1}  & 0 &0&\cdots & 0\\
+  0     & r_{2,2} &\cdots & r_{2,k+1} & r_{2,k+2} & 0& \cdots & 0&\\
+  \vdots&0&r_{3,3}&\cdots&r_{3,k+2}&r_{3,k+3}&\cdots&0&\\
+  0 &\cdots &0&r_{n-k,k+1}&r_{n-k,k+2}&r_{n-k,k+3}&\cdots&r_{n-k,n}\\
+  0 &\cdots & 0 & 0 &r_{n-k+1,k+2}&r_{n-k+1,k+3}&\cdots&r_{n-k+1,n}\\
+  0 & 0 & \cdots & 0 & 0 &r_{n-k+2,k+3}&\ddots &r_{n-k+2,n}\\
+  \vdots&\ddots &\ddots &\ddots &\ddots &0&\ddots&\vdots\\
+  0&\cdots&\cdots&\cdots&\cdots&\cdots&\cdots&r_{n,n}
+  \end{pmatrix}$$
+
+Step 1: To get $\M{R}\V{x}$, you have to solve $\M{R}^T\V{\beta}=\V{y}$,it needs $O(nk)$ flops;
+
+$$\begin{aligned}
+\beta_1&=\frac{y_1}{r_{11}}&&1 flop\\
+\beta_2&=\frac{y_2-r_{12}\beta_1}{r_{22}}&&3 flops\\
+\vdots&&&\\
+\beta_{k+1}&=\frac{y_k-r_{1k+1}\beta_1-r_{2k+1}\beta_2-\cdots-r_{k-1 k+1}\beta_{k-1}}{r_{k+1k
++1}}&& 2k+1 flops\\
+\vdots&&&\\
+\beta_n&=\frac{y_n-r_{n-kn}\beta_{n-k}-r_{n-k+1n}\beta_{n-k+1}-\cdots-r_{nn}\beta_n}{r_{nn}}&&2k+1 flops
+\end{aligned}$$
+
+Thus,it needs $\sum_{i=1}^{i=k}(2i+1)+(2k+1)(n-k)$ flops, which is $O(nk)$ flops.
+
+Step 2: To get $\V{x}$, the situation is the same as step 1. Thus, it needs $O(nk)$ flops.
+
+Therefore, the total is $O(nk)$ flops.
+
+\newpage
+
+**Part 2.** Banded Cholesky Decomposition
+
+You will next add an implementation of the banded Cholesky decomposition to your R package.
+
+Please complete the following steps.
+
+**Step 0:** Make a file called `cholesky_banded.R` in your R package. Put it in the R subdirectory, namely we should be able to see the file at github.ncsu.edu/unityidST758/unityidST758/R/cholesky_banded.R
+
+**Step 1:** Write a function `check_k_banded` that returns `True` if an input matrix `A` is $k$-banded and `False` otherwise. It should return an error message if $k < 0$ or if $k$ is not an integer. Please use the `stop` function. You may also find the function `is.integer` helpful.
+
+
+
+**Step 2:** Write a recursive function `chol_banded` that computes the $k$-banded Cholesky decomposition.
+
+
+
+
+- Use sparse matrices via `Matrix` package. Be sure to put the line
+```
+Depends: Matrix
+```
+in your `DESCRIPTION` file.
+- Your function should return an error message if the input matrix is not $k$-banded (**Hint:** Use your `check_k_banded` function you wrote in Step 1).
+- Your function should return an error message if the input matrix is not symmetric
+- Your function should return a sparse uppertriangular matrix `R`.
+
+**Step 3:** Write a unit test function `test-cholesky` that
+
+- checks the error messages for `check_k_banded`
+- checks the correctness of your `check_k_banded` function
+- checks the error messages for `chol_banded`
+- checks the correctness of your `chol_banded` output matrix with that obtained by R's `chol` function.
+
+**Step 4:** Apply your `chol_banded` function on $k$-banded positive definite matrices of sizes $n = 25, 50, 100, 200, 400$ and $k = 2, 4, 8$, and plot the run times using `system.out`. Plot runtime versus $n$ and overlay the curves for $k = 2, 4, 8$. Does the run time scale as you'd expect?
+
+```{r}
+library("ywang225ST758")
+
+generate_k_banded_pd<-function(n,k){
+  R=matrix(numeric(n^2),ncol=n,nrow=n)
+  for(i in 1:n){
+    R[i,i:min(i+k,n)]=rep(1,min(k+1,n-i+1))
+  }
+  A=t(R)%*%R+2*diag(rep(1,n),nrow=n,ncol = n)
+  return(A)
+}
+
+
+n_vector_step4=c(25,50,100,200,400)
+k_vector_step4=c(2,4,8)
+
+time_matrix_step4=matrix(data=numeric(length(n_vector_step4)*length(k_vector_step4)),
+                   nrow = length(k_vector_step4),ncol=length(n_vector_step4))
+
+colnames(time_matrix_step4)=as.character(n_vector_step4)
+rownames(time_matrix_step4)=as.character(k_vector_step4)
+
+for(i in 1:length(n_vector_step4)) 
+  for(j in 1:length(k_vector_step4))
+  {
+    n=n_vector_step4[i]; k=k_vector_step4[j];
+    y=1:n;
+    
+    A=generate_k_banded_pd(n,k)
+    print(paste0("n=",n," k=",k))
+    time=system.time(chol_banded(A,k))
+    time_matrix_step4[j,i]=time[1] # i for n; j for k
+    print(time[1])
+  }
+
+
+
+j=1
+plot(n_vector_step4,time_matrix_step4[j,],xlab="n",ylab="time",ylim=c(0,2*time_matrix_step4[j,5]),
+     main="Relation Between time and n,k in step 4")
+lines(n_vector_step4,time_matrix_step4[j,])
+j=2
+points(n_vector_step4,time_matrix_step4[j,])
+lines(n_vector_step4,time_matrix_step4[j,],col="red")
+j=3
+points(n_vector_step4,time_matrix_step4[j,])
+lines(n_vector_step4,time_matrix_step4[j,],col="blue") 
+
+
+legend("topleft",legend = paste0("k=",k_vector_step4),col=c("black","red","blue","green"),
+       lty=rep(1,4) )
+
+```
+
+**Step 5:** Generate random right hand side vectors $\V{y}$ of sizes $n = 25, 50, 100, 200,$ and $400$. Using the Cholesky factor matrices $R$ obtained for $k$-banded positive definite matrices of sizes $n = 25, 50, 100, 200, 400$ and $k = 2, 4, 8$, plot the run times solving the linear system $\M{R}\Tra\V{u} = \V{y}$ plus the run time of solving the linear system $\M{R}\V{x} = \V{u}$ as a function of $n$ for $k = 2, 4, 8$. Use the function `Matrix::solve` with the parameter `system` = `"L"` and `"Lt"` respectively. Does the run time scale as you'd expect?
+
+```{r}
+library("Matrix")
+library("ywang225ST758")
+
+n_vector=c(100,316,1000,3162,10000)
+k_vector=c(2,4,8)
+
+time_matrix=matrix(data=numeric(length(n_vector)*length(k_vector)),
+                   nrow = length(k_vector),ncol=length(n_vector))
+
+colnames(time_matrix)=as.character(n_vector)
+rownames(time_matrix)=as.character(k_vector)
+
+
+
+for(i in 1:length(n_vector)) 
+    for(j in 1:length(k_vector))
+{
+ 
+  n=n_vector[i]; k=k_vector[j];
+  y=1:n;
+  
+  diags <- list(1:n)
+  R_temp <- bandSparse(n, k = -0:k, diag = rep(diags[1],k+1), symm=FALSE)
+  A=t(R_temp)%*%R_temp+2*diag(rep(1,n),nrow=n,ncol = n)
+  
+  R=chol_banded(A,k)
+  print(paste0("n=",n," k=",k))
+  time=system.time(solve(a=R,b=solve(a=t(R),b=y,system="L"),system="Lt"))
+  time_matrix[j,i]=time[1] # i for n; j for k
+  print(time[1])
+    }
+
+
+j=1
+plot(n_vector,time_matrix[j,],xlab="n",ylab="time",
+     main="Relation Between time and n,k in step 5")
+lines(n_vector,time_matrix[j,])
+j=2
+  points(n_vector,time_matrix[j,])
+  lines(n_vector,time_matrix[j,],col="red")
+j=3
+  points(n_vector,time_matrix[j,])
+  lines(n_vector,time_matrix[j,],col="blue") 
+
+
+legend("topleft",legend = paste0("k=",k_vector),col=c("black","red","blue"),
+       lty=rep(1,3) )
+
+```
+
+
+

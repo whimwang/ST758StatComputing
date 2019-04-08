@@ -1,0 +1,12 @@
+Package: ywang225ST758
+Title: Sweeping Operators
+Version: 0.1
+Authors@R: person("Yiming", "Wang", email = "ywang225@ncsu.edu", role = c("aut", "cre"))
+Description: ywang225ST758 is a package.It contains four functions: sweep_k(),isweep_k(),sweep(),isweep().
+It contains four functions: sweep_k(),isweep_k(),sweep(),isweep().The sweep_k() applies the sweep operator to a symmertric matrix on the kth diagonal entry.the isweep_k() applies the inverse sweep operators to a symmetric matrix on the kth diagonal entry;The sweep() applies the sweep operators on a specified set of diagonal entries.The isweep() applies the sweep operators on a specified set of diagonal entries.
+Depends: R (>= 3.3.3), Matrix
+License: GPL-2
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 6.0.1
+Suggests: testthat

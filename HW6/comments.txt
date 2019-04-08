@@ -1,0 +1,7 @@
+theoretical (5+5+5+10+5) 30/30
+
+coding 25/25
+
+images 13/15
+
+expect the lambda_max case to be a blank image. choice of lambda not as required.

@@ -1,0 +1,3 @@
+Coding part should be worth 10 points, so everyone's points are doubled.
+
+e.g. 4->8, 5->10

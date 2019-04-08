@@ -1,0 +1,392 @@
+---
+title: "Homework 1"
+author: "Yiming Wang"
+date: "Due @ 5pm on September 12, 2017"
+output:
+  pdf_document: default
+  html_document: default
+header-includes:
+- \usepackage{bm}
+- \newcommand{\Real}{\mathbb{R}}
+- \newcommand{\dom}{{\bf dom}\,}
+- \newcommand{\Tra}{^{\sf T}} % Transpose
+- \newcommand{\Inv}{^{-1}} % Inverse
+- \def\vec{\mathop{\rm vec}\nolimits}
+- \def\sweep{\mathop{\rm sweep}\nolimits}
+- \newcommand{\diag}{\mathop{\rm diag}\nolimits}
+- \newcommand{\tr}{\operatorname{tr}} % Trace
+- \newcommand{\epi}{\operatorname{epi}} % epigraph
+- \newcommand{\V}[1]{{\bm{\mathbf{\MakeLowercase{#1}}}}} % vector
+- \newcommand{\VE}[2]{\MakeLowercase{#1}_{#2}} % vector element
+- \newcommand{\Vn}[2]{\V{#1}^{(#2)}} % n-th vector
+- \newcommand{\Vtilde}[1]{{\bm{\tilde \mathbf{\MakeLowercase{#1}}}}} % vector
+- \newcommand{\Vhat}[1]{{\bm{\hat \mathbf{\MakeLowercase{#1}}}}} % vector
+- \newcommand{\VtildeE}[2]{\tilde{\MakeLowercase{#1}}_{#2}} % vector element
+- \newcommand{\M}[1]{{\bm{\mathbf{\MakeUppercase{#1}}}}} % matrix
+- \newcommand{\ME}[2]{\MakeLowercase{#1}_{#2}} % matrix element
+- \newcommand{\Mtilde}[1]{{\bm{\tilde \mathbf{\MakeUppercase{#1}}}}} % matrix
+- \newcommand{\Mhat}[1]{{\bm{\hat \mathbf{\MakeUppercase{#1}}}}} % matrix
+- \newcommand{\Mcheck}[1]{{\bm{\check \mathbf{\MakeUppercase{#1}}}}} % matrix
+- \newcommand{\Mbar}[1]{{\bm{\bar \mathbf{\MakeUppercase{#1}}}}} % matrix
+- \newcommand{\Mn}[2]{\M{#1}^{(#2)}} % n-th matrix
+---
+
+**Part 1.** 
+
+1. Let $\M{A} \in \Real^{m \times n}$ and $f : \Real^{m \times m} \mapsto \Real$ such that
+
+$$
+f(\M{A}) = \underset{\V{x} \neq \V{0}}{\sup} \frac{\lVert \M{a}\V{x} \rVert}{\lVert \V{x} \rVert},
+$$
+where $\lVert \cdot \lVert$ is a vector norm. Prove that $f$ is a matrix norm.
+
+**Answer:**
+
+Write your answer here.
+
+Proof:
+
+(1)$f(\M{A}) \geq 0$ since  $\lVert \V{x} \lVert >0$ and  $\lVert \M{A}\V{x} \lVert \geq 0$.
+
+(2)$f(\M{A})=0 \Leftrightarrow \forall \V{x}, \lVert \M{A}\V{x} \lVert =0 \Leftrightarrow \forall \V{x}, \M{A}\V{x}=0 \Leftrightarrow \M{A}=0$.
+
+(3)$f(\alpha \M{A})= \underset{\V{x} \neq \V{0}}{\sup} \frac{\lVert \alpha\M{A}\V{x} \rVert}{\lVert \V{x} \rVert}=\underset{\V{x} \neq \V{0}}{\sup}\left|\alpha\right| \frac{ \lVert \M{A}\V{x} \rVert}{\lVert \V{x} \rVert}=\left|\alpha\right|\cdot \underset{\V{x} \neq \V{0}}{\sup} \frac{\lVert \alpha\M{A}\V{x} \rVert}{\lVert \V{x} \rVert}=\left|\alpha\right|\cdot f(\M{A})$
+
+(4)$f(\M{A+B})=\underset{\V{x} \neq \V{0}}{\sup} \frac{\lVert \M{(A+B)}\V{x} \rVert}{\lVert \V{x} \rVert}=\underset{\V{x} \neq \V{0}}{\sup} \frac{\lVert \M{A}\V{x}+\M{B}\V{x} \rVert}{\lVert \V{x} \rVert}\leq \underset{\V{x} \neq \V{0}}{\sup} \frac{\lVert \M{A}\V{x} \rVert+\lVert \M{B}\V{x} \rVert}{\lVert \V{x} \rVert}\leq \underset{\V{x} \neq \V{0}}{\sup} \frac{\lVert \M{A}\V{x} \rVert}{\lVert \V{x} \rVert}+\underset{\V{x} \neq \V{0}}{\sup} \frac{\lVert \M{B}\V{x} \rVert}{\lVert \V{x} \rVert}=f(\M{A})+f(\M{B})$. Hence, $f(\M{A+B})\leq f(\M{A})+f(\M{B})$
+
+(5)$f(\M{AB}) = \underset{\V{x} \neq \V{0}}{\sup} \frac{\lVert \M{AB}\V{x} \rVert}{\lVert \M{B}\V{x} \rVert}\frac{\lVert \M{B}\V{x} \rVert}{\lVert \V{x} \rVert}\leq\underset{\V{x} \neq \V{0}}{\sup} \frac{\lVert \M{AB}\V{x} \rVert}{\lVert \M{B}\V{x} \rVert}$
+$\underset{\V{x} \neq \V{0}}{\sup}  \frac{\lVert \M{B}\V{x} \rVert}{\lVert \V{x} \rVert}
+\leq \underset{\V{y} \neq \V{0}}{\sup}\frac{\lVert \M{A}\V{y} \rVert}{\lVert \V{y} \rVert}\cdot  \underset{\V{x} \neq \V{0}}{\sup} \frac{\lVert \M{B}\V{x} \rVert}{\lVert \V{x} \rVert}=f(\M{A})f(\M{B})$. 
+Hence $f(\M{AB})\leq f(\M{A})f(\M{B})$
+
+Based on (1)-(5), we conclude that $f$ is a matrix norm.
+
+
+
+
+2. Let $\M{A} \in \Real^{m \times n}$ and $f : \Real^{m \times m} \mapsto \Real$ such that
+
+$$
+f(\M{A}) = \underset{j}{\max} \sum_i \lvert \ME{a}{ij} \rvert.
+$$
+Prove that $f$ is a matrix norm. **Hint: Use your result from 1.**
+
+**Answer:**
+
+Write your answer here.
+
+Proof:
+
+Vector $\V{x}=(x_1,x_2,...,x_n)^t$ and we define $\lVert \V{x}\lVert=\sum_{i=1}^{n}|x_i|$, which is $L_1$ norm of $\V{x}$.Then we claim that $\underset{j}{\max} \sum_i \lvert \ME{a}{ij} \rvert=\underset{\V{x} \neq \V{0}}{\sup} \frac{\lVert \M{a}\V{x} \rVert}{\lVert \V{x} \rVert}$. The following is the proof of it.
+
+$\forall \V{x}$, we do transformation $\frac{\V{x}}{\lVert \V{x}\lVert}$ so that the new vector $\V{x}$ has norm 1, which means $\sum_{i=1}^n|x_{i}|=1$.
+
+$\sum_{i=1}^{m}|a_{i1}x_{1}+a_{i2}x_2+...+a_{in}x_{n}|\leq \sum_{i=1}^{m}(|a_{i1}||x_1|+|a_{i2}||x_2|+...|a_{in}||x_{n}|)\leq|x_{1}|\sum_{i=1}^{m}|a_{i1}|+|x_2|\sum_{i=1}^{m}|a_{i2}|+...+|x_n|\sum_{i=1}^{m}|a_{in}|\leq(|x_1+|x_2|+...+|x_n|)\underset{j}{\max} \sum_i \lvert \ME{a}{ij} \rvert=\underset{j}{\max} \sum_i \lvert \ME{a}{ij} \rvert$.
+
+Hence $f(\M{A})=\underset{\V{x} \neq \V{0}}{\sup} \frac{\lVert \M{A}\V{x} \rVert}{\lVert \V{x} \rVert}$. 
+
+Therefore $f$ is a matrix norm.
+ 
+
+3. Let $\M{A} \in \Real^{m \times n}$ and $f : \Real^{m \times m} \mapsto \Real$ such that
+
+$$
+f(\M{A}) = \underset{i}{\max} \sum_j \lvert \ME{a}{ij} \rvert.
+$$
+Prove that $f$ is a matrix norm. **Hint: Use your result from 1.**
+
+**Answer:**
+
+Write your answer here.
+
+Proof:
+Vector $\V{x}=(x_1,x_2,...,x_m)^T$ and we define $\lVert \V{x}\lVert=\sum_{i=1}^{n}|x_i|$, which is $L_1$ norm of $\V{x}$. And we claim that $\underset{i}{\max} \sum_j \lvert \ME{a}{ij} \rvert= \underset{\V{x} \neq \V{0}}{\sup} \frac{\lVert \M{A}^T\V{x} \rVert}{\lVert \V{x} \rVert}$. 
+
+Define $\M{B}=\M{A}^T$. According to Problem 2, $\underset{\V{x} \neq \V{0}}{\sup} \frac{\lVert \M{B}^T\V{x} \rVert}{\lVert \V{x} \rVert}=\underset{j}{\max} \sum_i \lvert \ME{b}{ij} \rvert$, which is $\underset{i}{\max} \sum_j \lvert \ME{a}{ij} \rvert$.
+
+Therefore,$f(\M{A})=\underset{i}{\max} \sum_j \lvert \ME{a}{ij} \rvert$.
+
+
+
+
+4. Let $\M{Q} \in \Real^{m \times m}$ be a rotation matrix, namely $\M{Q}\Tra\M{Q} = \M{I}$. **True or False:** The 1-norm of a vector $\V{x} \in \Real^m$ is rotationally invariant, namely
+
+$$
+\lVert \M{Q}\V{x} \rVert_1 = \lVert \V{x} \rVert_1.
+$$
+
+If true, give a proof. If false, provide a counter example.
+
+**Answer:**
+
+The claim is false.
+
+Suppose we choose $\V{x}=(x_1,x_2,...,x_m)^T=(1,0,0,...,0)^T$
+Then $RHS=1$ and $LHS=\lVert (q_{11},q_{21},...,q_{m1}) \rVert_1= \sum_i \lvert q_{i1} \rvert$.
+
+Suppose $\V{\alpha_1}=(\frac{1}{2},\frac{1}{2},-\frac{1}{2},-\frac{1}{2},0...,0)^t$ and we can always find $m-1$ vectors $\V{\alpha_2},\V{\alpha_3},...,\V{\alpha_m}$ in $\Real^{m}$, which makes these $m$ vectors be orthogonal basis.
+
+So we have $\M{Q}=\begin{pmatrix}
+\alpha_{1}&\alpha_{2}&...&\alpha_{m}\\
+\end{pmatrix}$.
+
+$LHS=\lVert \V{\alpha_1} \rVert_1=2\neq RHS$.
+Therefore the claim is false.
+
+
+
+
+5. Let $\M{Q} \in \Real^{m \times m}$ be a rotation matrix, namely $\M{Q}\Tra\M{Q} = \M{I}$. **True or False:** The 2-norm of a vector $\V{x} \in \Real^m$ is rotationally invariant, namely
+
+$$
+\lVert \M{Q}\V{x} \rVert_2 = \lVert \V{x} \rVert_2.
+$$
+
+If true, give a proof. If false, provide a counter example.
+
+**Answer:**
+
+Write your answer here.
+
+The claim is true.
+
+Proof:
+$\lVert \M{Q}\V{x} \rVert_2^2=(\M{Q}\V{x})^t\cdot(\M{Q}\V{x})=\V{x}^T\M{Q}^T\M{Q}\V{x}=x^Tx=\lVert \V{x} \rVert_2^2$
+
+Therefore $\lVert \M{Q}\V{x} \rVert_2=\lVert \V{x} \rVert_2$
+
+6. Let $\M{Q} \in \Real^{m \times m}$ be a rotation matrix, namely $\M{Q}\Tra\M{Q} = \M{I}$. **True or False:** The $\infty$-norm of a vector $\V{x} \in \Real^m$ is rotationally invariant, namely
+
+$$
+\lVert \M{Q}\V{x} \rVert_\infty = \lVert \V{x} \rVert_\infty.
+$$
+
+If true, give a proof. If false, provide a counter example.
+
+**Answer:**
+
+Write your answer here.
+The claim is false.
+For example, when $m=2$, we have $$\V{x}=(1,1),
+\M{Q}= \begin{bmatrix} 
+    \frac{1}{2}&\frac{\sqrt{3}}{2}\\
+    \frac{\sqrt{3}}{2}&-\frac{1}{2}\\
+    \end{bmatrix}$$
+Then $$LHS=\lVert \M{Q}\V{x} \rVert_\infty=\lVert (\frac{1+\sqrt{3}}{2},\frac{\sqrt{3}-1}{2})^T \rVert_\infty=\sqrt{3}$$
+and  $RHS=1+1=2\neq LHS$.
+Therefore, the claim is wrong.
+\newpage
+
+**Part 2.** The Sweep Operator
+
+You will next add an implementation of the sweep operator to your R package.
+
+Please complete the following steps.
+
+**Step 0:** Make an R package entitled "unityidST758". My unity id is "ecchi", so I would make a package entitled ecchiST758.
+
+**Step 1:** Write a function "sweep_k" that applies the sweep operator to a symmetric matrix on the $k$th diagonal entry if possible. It should return an error message if
+
+- the $k$th diagonal entry is zero
+- the input matrix is not symmetric
+
+```{r, echo=TRUE}
+#' Sweep k
+#' 
+#' \code{sweep_k} applies the sweep operator to a symmetric matrix
+#' on the kth diagonal entry if it is possible.
+#' 
+#' @param A The input symmetric matrix
+#' @param k Diagonal index on which to sweep
+#' @export
+
+```
+Your function should return the matrix $\Mhat{A} = \sweep(\M{A}, k)$ if it is possible to sweep.
+
+**Step 2:** Write a function "isweep_k" that applies the inverse sweep operator to a symmetric matrix on the $k$th diagonal entry if possible. It should return an error message if
+
+- the $k$th diagonal entry is zero
+- the input matrix is not symmetric
+
+```{r, echo=TRUE}
+#' Inverse Sweep k
+#' 
+#' \code{isweep_k} applies the inverse sweep operator to a symmetric matrix
+#' on the kth diagonal entry if it is possible.
+#' 
+#' @param A The input symmetric matrix
+#' @param k Diagonal index on which to sweep
+#' @export
+
+```
+Your function should return the matrix $\Mhat{A} = \sweep\Inv(\M{A}, k)$ if it is possible to sweep.
+
+\newpage
+
+**Step 3:** Write a function "sweep" that is a wrapper function for your "sweep_k" function. This function should apply the sweep operator on a specified set of diagonal entries.It should return an error message if
+
+- the $k$th diagonal entry is zero
+- the input matrix is not symmetric
+
+Also, it should by default, if a set of diagonal entries is not specified, it should apply the Sweep operator on all diagonal entries (if possible).
+
+```{r, echo=TRUE}
+#' Sweep
+#' 
+#' @param A The input symmetric matrix
+#' @param k Diagonal index entry set on which to sweep
+#' @export
+
+```
+
+**Step 4:** Write a function "isweep" that is a wrapper function for your "isweep_k" function. This function should apply the sweep operator on a specified set of diagonal entries.It should return an error message if
+
+- the $k$th diagonal entry is zero
+- the input matrix is not symmetric
+
+Also, it should by default, if a set of diagonal entries is not specified, it should apply the Inverse Sweep operator on all diagonal entries (if possible).
+
+```{r, echo=TRUE}
+#' Inverse Sweep
+#' 
+#' @param A The input symmetric matrix
+#' @param k Diagonal index entry set on which to sweep
+#' @export
+
+```
+
+
+**Step 4:** Perform the forward sweep and inverse sweep on the following set of three matrices (A1, A2, A3).  The point of this exercise is a simple check to make sure your code returns an error when appropriate.
+
+```{r, echo=TRUE}
+set.seed(12345)
+n <- 100
+
+A1 <- matrix(rnorm(n*n),n,n)
+A2 <- A1 + t(A1)
+A2[1,1]<-0
+
+A3 <- A2
+svdA3 <- svd(A3)
+d <- sapply(svdA3$d, FUN=function(x) {max(x,1)})
+U <- svdA3$u
+A3 <- U %*% diag(d) %*% t(U)
+```
+
+
+check the forward sweep function
+```{r}
+#install.packages("ywang225ST758_0.1.tar.gz",repos=NULL,type="source")
+library("ywang225ST758")
+
+sweep(A1,1)
+sweep(A2,1)
+a=sweep(A3,1);a[1:4,1:4];
+
+```
+
+check inverse sweep
+```{r}
+isweep(A1,1)
+isweep(A2,1);
+a=isweep(A3,1);a[1:4,1:4]
+
+```
+
+**Step 5:** Write a test matrix to verify that 'sweep_k' and 'isweep_k' do indeed undo the effects of each other.
+
+```{r, echo=TRUE}
+## Write R code here to make your matrix and test that the sweep_k and isweep_k undo each other.
+k=sample(1:n,1)
+all.equal(isweep_k(sweep_k(A3,k),k),A3)
+
+```
+
+**Step 6:** Write a test matrix to verify that 'sweep' and 'isweep' do indeed undo the effects of each other.
+
+```{r, echo=TRUE}
+## Write R code here to make your matrix and test that the sweep and isweep undo each other.
+
+k=sample(1:n,2,replace=FALSE)
+all.equal(isweep(sweep(A3,1:n),seq(from=n,to=1,by=-1)),A3)
+all.equal(isweep(sweep(A3,k),rev(k)),A3)
+all.equal(sweep(isweep(A3,k),rev(k)),A3)
+
+```
+
+\newpage
+
+**Step 7:** Use your `sweep` function to compute the regression coefficients in the following multiple linear regression problem. Compare your answers to what is provided by the lm function in R.
+
+```{r, echo=TRUE}
+set.seed(12345)
+n <- 1000
+p <- 10
+X <- matrix(rnorm(n*p), n, p)
+beta <- matrix(rnorm(p), p, 1)
+y <- X%*%beta + matrix(rnorm(n), n, 1)
+
+```
+
+```{r,echo=TRUE}
+#R
+beta_hat=coef(lm(y~X-1))
+as.vector(beta_hat)
+
+#sweep
+as.vector(-sweep(t(X)%*%X,1:p)%*%t(X)%*%y)
+
+all.equal(as.vector(beta_hat),as.vector(-sweep(t(X)%*%X,1:p)%*%t(X)%*%y))
+```
+
+
+
+
+**Step 8:** Apply your `sweep` function on symmetric matrices of sizes $n = 100, 200, 400, 800, 1600$ and plot the run times using `system.out`. Does the run time scale as you'd expect?
+
+
+```{r}
+n=100
+set.seed(12345);
+A1 <- matrix(rnorm(n*n),n,n);
+A2 <- A1 + t(A1);
+result1=system.time(sweep(A2,1:n))
+result1
+
+
+n=200
+set.seed(12345);
+A1 <- matrix(rnorm(n*n),n,n);
+A2 <- A1 + t(A1);
+result2=system.time(sweep(A2,1:n))
+result2
+
+
+
+n=400
+set.seed(12345);
+A1 <- matrix(rnorm(n*n),n,n);
+A2 <- A1 + t(A1);
+result3=system.time(sweep(A2,1:n))
+result3
+
+
+
+n=800
+set.seed(12345);
+A1 <- matrix(rnorm(n*n),n,n);
+A2 <- A1 + t(A1);
+result4=system.time(sweep(A2,1:n))
+result4
+
+```
+
+```{r}
+n_vector=c(100,200,400,800);
+time=c(result1[1],result2[1],result3[1],result4[1])
+
+plot(n_vector,time,main="Plot for n vs time",type="p")
+lines(n_vector,time)
+```
+
+If I just sweep one element in the matrix, I have time~O($n^3$) .

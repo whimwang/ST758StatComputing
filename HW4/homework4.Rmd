@@ -1,0 +1,534 @@
+---
+title: "Homework 4"
+author: "Yiming Wang"
+date: "Due @ 5pm on November 3, 2017"
+output:
+  html_document: default
+  pdf_document: default
+header-includes:
+- \usepackage{bm}
+- \newcommand{\Real}{\mathbb{R}}
+- \newcommand{\dom}{{\bf dom}\,}
+- \newcommand{\Tra}{^{\sf T}} % Transpose
+- \newcommand{\Inv}{^{-1}} % Inverse
+- \def\vec{\mathop{\rm vec}\nolimits}
+- \newcommand{\diag}{\mathop{\rm diag}\nolimits}
+- \newcommand{\tr}{\operatorname{tr}} % Trace
+- \newcommand{\epi}{\operatorname{epi}} % epigraph
+- \newcommand{\V}[1]{{\bm{\mathbf{\MakeLowercase{#1}}}}} % vector
+- \newcommand{\VE}[2]{\MakeLowercase{#1}_{#2}} % vector element
+- \newcommand{\Vn}[2]{\V{#1}^{(#2)}} % n-th vector
+- \newcommand{\Vtilde}[1]{{\bm{\tilde \mathbf{\MakeLowercase{#1}}}}} % vector
+- \newcommand{\Vhat}[1]{{\bm{\hat \mathbf{\MakeLowercase{#1}}}}} % vector
+- \newcommand{\VtildeE}[2]{\tilde{\MakeLowercase{#1}}_{#2}} % vector element
+- \newcommand{\M}[1]{{\bm{\mathbf{\MakeUppercase{#1}}}}} % matrix
+- \newcommand{\ME}[2]{\MakeLowercase{#1}_{#2}} % matrix element
+- \newcommand{\Mtilde}[1]{{\bm{\tilde \mathbf{\MakeUppercase{#1}}}}} % matrix
+- \newcommand{\Mbar}[1]{{\bm{\bar \mathbf{\MakeUppercase{#1}}}}} % matrix
+- \newcommand{\Mn}[2]{\M{#1}^{(#2)}} % n-th matrix
+---
+
+**Part 1.** We will work through some details on the Huberized support vector machine (HSVM). The HSVM is a variant of the classic support vector machine (SVM) where the objective function is continuously differentiable; the objective function of the standard SVM is not.
+
+The SVM is a classifier. Given a new sample's covariate vector, we wish to predict whether the sample is from class -1 or class 1. We set some notation. Let $\V{x}_i \in \Real^{p}, y_i \in \{-1,1\}$ for $i=1, \ldots, n$. Let $\M{X} \in \Real^{n \times p}$ denote the matrix with $\V{x}_i$ as its $i$th row.
+To train the classifier, we seek to minimize the following loss function:
+
+$$
+\ell(\V{\beta}) = \sum_{i=1}^n \phi(\VE{y}{i}(\V{x}_i\Tra\V{\beta})) + \frac{\lambda}{2}\lVert\V{\beta}\rVert_2^2,
+$$
+
+where $\phi$ is a smoothed hinge loss function:
+
+$$
+\phi(t) = \begin{cases}
+0 & \text{if $t > 1$} \\
+\frac{(1-t)^2}{2\delta} & \text{if $t \in (1 - \delta, 1]$} \\
+1 - t - \frac{\delta}{2} & \text{if $t \leq 1 - \delta$}
+\end{cases}
+$$
+where $\delta \geq 0$ is a user defined constant.
+
+1. Write the gradient and Hessian of $f(\V{\beta})$.
+$$
+\phi^{\prime}(t) = \begin{cases}
+0 & \text{if $t > 1$} \\
+\frac{t-1}{\delta} & \text{if $t \in (1 - \delta, 1)$} \\
+ -1 & \text{if $t < 1 - \delta$}
+\end{cases}
+$$
+
+$$
+\nabla f(\beta)=\sum_{i=1}^n \phi^{\prime}(\VE{y}{i}(\V{x}_i\Tra\V{\beta}))\cdot y_i\V{x_i} + \lambda\V{\beta}
+$$
+$$
+\phi^{\prime\prime}(t) = \begin{cases}
+0 & \text{if $t > 1$} \\
+\frac{1}{\delta} & \text{if $t \in (1 - \delta, 1)$} \\
+0 & \text{if $t < 1 - \delta$}
+\end{cases}
+$$
+
+$$
+H(f)=\sum_{i=1}^n \phi^{\prime\prime}(\VE{y}{i}(\V{x}_i\Tra\V{\beta}))\cdot y_i^2\V{x_i}\V{x_i}^T + \lambda\M{I}
+$$
+2. What is the computational complexity for a calculating the gradient and Hessian of $f(\V{\beta})$?
+
+For gradient of $f(\V{\beta})$,
+$y_i\V{x_i}$ needs $p$ flops and $y_i\V{x_i}^T\cdot \V{\beta}$ needs $2p-1$ flops.
+Therefore, the total flops for the gradient is $0(np)$.
+
+For Hessian of $f(\V{\beta})$, $x_i^Tx_i$ needs $p^2$ flops, $y_i\V{x_i}^T \V{\beta}$ needs $3p-1$ flops. Therefore, the total flops for the Hessian is $0(np^2)$.
+
+
+3. Under what condition is $f(\V{\beta})$ strictly convex?
+
+$f(\V{\beta})$ is strictly convex when $H(f)$ is positive definite, which means that $\forall \V{x} \neq \V{0}$, $\V{x}^T H(f) \V{x}>0$. 
+
+
+4. Prove that $f(\V{\beta})$ is Lipschitz differentiable. What is the Lipschitz constant?
+
+Denote $\V{t_i}=y_i(\V{x_i}^T\V{\beta})$ and $\tilde{\V{t_i}}=y_i(\V{x_i}^T\tilde{\V{\beta}})$, so we get vector $\V{t}$ and $\tilde{\V{t}}$.
+
+$$
+\nabla f(\beta)-\nabla f(\tilde{\beta})=\sum_{i=1}^n(\phi^{\prime}(t_i)-\phi^{\prime}(\tilde{t_i}))\cdot y
+_i\V{x_i}+\lambda(\V{\beta}-\tilde{\V{\beta}})
+$$
+$$
+\lVert{\nabla f(\V{\beta})-\nabla f(\tilde{\V{\beta}})}\rVert_2\leq \lVert \sum_{i=1}^n(\phi^{\prime}(t_i)-\phi^{\prime}(\tilde{t_i}))\cdot y
+_i\V{x_i} \rVert_2 + \lVert \lambda(\V{\beta}-\tilde{\V{\beta}}) \rVert_2
+$$
+
+Note that $|\phi^{\prime}(t_i)-\phi^{\prime}(\tilde{t_i})|\leq \frac{1}{\delta}|t_i-\tilde{t_i}|$, then we have 
+$$
+|\phi^{\prime}(t_i)-\phi^{\prime}(\tilde{t_i})|\leq \frac{1}{\delta}|y_i\V{x_i}^T(\V{\beta}-\tilde{\V{\beta}})|\leq \frac{1}{\delta}|y_i|\cdot \lVert\V{x_i}^T\rVert_2\cdot \lVert(\V{\beta}-\tilde{\V{\beta}})\rVert_2
+$$
+And we can also get
+$$\lVert \sum_{i=1}^n(\phi^{\prime}(t_i)-\phi^{\prime}(\tilde{t_i}))\cdot y
+_i\V{x_i} \rVert_2 \leq \sum_{i=1}^n|\phi^{\prime}(t_i)-\phi^{\prime}(\tilde{t_i})|\cdot |y_i| \cdot \lVert\V{x_i}\rVert_2\leq \sum_{i=1}^n\frac{1}{\delta}y_i^2\lVert\V{x_i}\rVert_2^2\cdot\lVert(\V{\beta}-\tilde{\V{\beta}})\rVert_2$$
+
+Thus,
+$$
+\lVert{\nabla f(\V{\beta})-\nabla f(\tilde{\V{\beta}})}\rVert_2 \leq \lVert(\V{\beta}-\tilde{\V{\beta}})\rVert_2 \cdot (|\lambda|+\sum_{i=1}^n\frac{1}{\delta}y_i^2\lVert\V{x_i}\rVert_2^2)
+$$
+Therefore, $L=|\lambda|+\sum_{i=1}^n\frac{1}{\delta}y_i^2\lVert\V{x_i}\rVert_2^2$
+
+**Part 2.** Gradient Descent
+
+You will next add an implementation of the HSVM fit by gradient descent to your R package. Your function will include using both a fixed step-size as well as one chosen by backtracking.
+
+Please complete the following steps.
+
+**Step 0:** Make a file called `HSVM.R` in your R package. Put it in the R subdirectory, namely we should be able to see the file at github.ncsu.edu/unityidST758/unityidST758/R/HSVM.R
+
+\newpage
+
+**Step 1:** Write functions 'fx_hsvm' and 'gradf_hsvm' to compute the loss and gradient for the HSVM.
+
+```{r, echo=TRUE}
+#' Objective Function for HSVM
+#' 
+#' @param y binary response
+#' @param X design matrix
+#' @param beta regression coefficient vector
+#' @param delta shape parameter
+#' @param lambda regularization parameter
+#' @export
+fx_hsvm <- function(y, X, beta, delta, lambda=1e-4) {
+  #y=c(1,-1);beta=c(2,1);delta=0.2;
+  #X=matrix(data=c(1,2,3,4),nrow=2,ncol=2,byrow = TRUE);
+  sum=0;
+  n=nrow(X);
+   for(i in 1:n)
+    {
+       t=y[i]*(X[i,]%*%beta)
+       #print(paste0("t value: ",t))
+       if(t<=1-delta)
+         sum=sum+(1-t-delta/2);
+       if((t>1-delta)&(t<=1))
+         sum=sum+(1-t)^2/2/delta;
+        #print(paste0("sum value: ",sum))
+     }
+  return(sum+lambda/2*sum(beta^2))
+}
+
+#' Gradient for HSVM
+#'
+#' @param y binary response
+#' @param X design matrix
+#' @param beta regression coefficient vector
+#' @param delta shape parameter
+#' @param lambda regularization parameter
+#' @export
+gradf_hsvm <- function(y, X, beta, delta, lambda=1e-4) {
+  #y=c(1,-1);beta=c(2,1);delta=0.2;
+  #X=matrix(data=c(1,2,3,4),nrow=2,ncol=2,byrow = TRUE);
+  p=ncol(X);
+  sum_grad=matrix(rep(0,p),nrow=p,ncol=1);
+  for(i in 1:nrow(X))
+    { 
+      t=y[i]*(X[i,]%*%beta);#y_i*x_i_beta
+      #print(paste("t value: ",t));
+      if(t<=1-delta)
+        sum_grad=sum_grad-y[i]*X[i,];
+      if((t>1-delta)&(t<=1))
+        sum_grad=sum_grad-(y[i]*X[i,])/delta*(1-t);
+      #print(paste("sum value: ",n,sum_grad))
+   }
+  return(sum_grad+lambda*beta)
+}
+
+```
+
+**Step 2:** Write a function "gradient_descent_fixed."
+
+```{r, echo=TRUE}
+#' Gradient Descent (Fixed Step-Size)
+#'
+#' @param y binary response
+#' @param X design matrix
+#' @param b0 initial parameter estimate
+#' @param delta shape parameter
+#' @param t step-size
+#' @param lambda regularization parameter
+#' @param max_iter maximum number of iterations
+#' @param tol convergence tolerance
+#' @export
+gradient_descent_fixed <- function(y, X, b0, t, delta, lambda=1e-4, max_iter=1e2, tol=1e-3) {
+  #y=c(1,-1);beta=c(2,1);delta=0.2;
+  #X=matrix(data=c(1,2,3,4),nrow=2,ncol=2,byrow = TRUE);
+  x_0=b0;times=0;
+  while(times<max_iter){
+    x_1=x_0-t*gradf_hsvm(y,X,x_0,delta,lambda);
+    times=times+1;
+
+if(abs(fx_hsvm(y, X, beta=x_1, delta, lambda)-fx_hsvm(y, X, beta=x_0, delta, lambda))<tol)# find solution
+return( list(iterate_value=x_1,
+objective_function_value=fx_hsvm(y, X, beta=x_1, delta, lambda),
+norm2_gradient_value=sqrt(sum(x_1^2)),
+relative_change_in_function=abs((fx_hsvm(y, X, beta=x_1, delta, lambda)-
+fx_hsvm(y, X, beta=x_0, delta,lambda))/fx_hsvm(y,X,beta=x_0,delta,lambda)),
+relative_change_in_iterate=sqrt(sum((x_1-x_0)^2))/sqrt(sum(x_0^2)) ))  
+else{ x_0=x_1 }# not a solution
+}
+return( list(iterate_value=x_1,
+objective_function_value=fx_hsvm(y, X, beta=x_1, delta, lambda),
+norm2_gradient_value=sqrt(sum(x_1^2)),
+relative_change_in_function=abs((fx_hsvm(y, X, beta=x_1, delta, lambda)-
+fx_hsvm(y, X,beta=x_0,delta,lambda))/fx_hsvm(y,X,beta=x_0,delta,lambda)),
+relative_change_in_iterate=sqrt(sum((x_1-x_0)^2))/sqrt(sum(x_0^2)) ))  
+}
+```
+Your function should return
+
+- The final iterate value
+- The objective function values
+- The 2-norm of the gradient values
+- The relative change in the function values
+- The relative change in the iterate values
+
+\newpage
+
+**Step 3:** Write a function "gradient_descent_backtrack" that performs gradient descent using backtracking.
+
+```{r, echo=TRUE}
+#' Gradient Descent (Backtracking Step-Size)
+#' 
+#' @param y binary response
+#' @param X design matrix
+#' @param b0 initial parameter estimate
+#' @param delta shape parameter
+#' @param lambda regularization parameter
+#' @param max_iter maximum number of iterations
+#' @param tol convergence tolerance
+#' @export
+gradient_descent_backtrack <- function(y, X, b0, delta, lambda=1e-4, max_iter=1e2, tol=1e-3) { 
+beta=0.9;alpha=1;r=0.5;
+times=0;
+
+x_0=beta0;
+x_1=beta0;
+alpha_current=alpha;
+while(times<max_iter){
+  times=times+1;
+  alpha_current=alpha;
+  x_1_grad=gradf_hsvm(y,X,x_1,delta,lambda)
+  while(fx_hsvm(y,X,x_1-alpha_current*x_1_grad,delta,lambda)>=fx_hsvm(y,X,x_1,delta,lambda)-r*alpha_current*sum(x_1_grad^2))
+  {alpha_current=alpha_current*beta;}
+  
+  x_0=x_1;
+  x_1=x_1-alpha_current*x_1_grad;
+  
+if(abs(fx_hsvm(y,X,x_1,delta,lambda)-fx_hsvm(y,X,x_0,delta,lambda))<tol)
+  return( list(iterate_value=x_1,
+objective_function_value=fx_hsvm(y, X, beta=x_1, delta, lambda),
+norm2_gradient_value=sqrt(sum(x_1^2)),
+relative_change_in_function=abs((fx_hsvm(y, X, beta=x_1, delta, lambda)
+-fx_hsvm(y, X, beta=x_0, delta, lambda))/fx_hsvm(y,X,beta=x_0,delta,lambda)),
+relative_change_in_iterate=sqrt(sum((x_1-x_0)^2))/sqrt(sum(x_0^2)) ))  
+}
+return( list(iterate_value=x_1,
+objective_function_value=fx_hsvm(y, X, beta=x_1, delta, lambda),
+norm2_gradient_value=sqrt(sum(x_1^2)),
+relative_change_in_function=abs((fx_hsvm(y, X, beta=x_1, delta, lambda)
+-fx_hsvm(y, X,beta=x_0,delta,lambda))/fx_hsvm(y,X,beta=x_0,delta,lambda)),
+relative_change_in_iterate=sqrt(sum((x_1-x_0)^2))/sqrt(sum(x_0^2)) ))  
+}
+```
+Your function should return
+
+- The final iterate value
+- The objective function values
+- The 2-norm of the gradient values
+- The relative change in the function values
+- The relative change in the iterate values
+
+**Step 4:** Write a function "gradient_descent" that is a wrapper function for "gradient_descent_fixed" and "gradient_descent_backtrack." The default should be to use the backtracking.
+
+```{r, echo=TRUE}
+#' Gradient Descent
+#' 
+#' @param y binary response
+#' @param X design matrix
+#' @param b0 initial parameter estimate
+#' @param delta shape parameter
+#' @param t step-size
+#' @param lambda regularization parameter
+#' @param max_iter maximum number of iterations
+#' @param tol convergence tolerance
+#' @export
+gradient_descent <- function(y, X, b0, delta, t=NULL, lambda=1e-4, max_iter=1e2, tol=1e-3) {
+  if(is.numeric(t))
+    gradient_descent_fixed(y=y, X=X, b0=b0, delta=delta,t=t,lambda=lambda, max_iter=max_iter, tol=tol)
+  else
+    gradient_descent_backtrack(y=y, X=X, b0=b0, delta=delt, lambda=lambda, max_iter=max_iter, tol=tol)
+}
+```
+Your function should return
+
+- The final iterate value
+- The objective function values
+- The 2-norm of the gradient values
+- The relative change in the function values
+- The relative change in the iterate values
+
+\newpage
+
+**Step 5:** Train an HSVM classifier (with $\lambda = 1e-4$) on the following data example $(\V{y},\M{X})$ using the fixed step-size. Use your answers to Part 1 to choose an appropriate fixed step-size. Plot the difference $\ell(\V{\beta}_k) - \ell(\V{\beta}_{10000})$ versus the iteration $k$. Comment on the shape of the plot given what you know about the iteration complexity of gradient descent with a fixed step size.
+
+```{r, echo=TRUE}
+##HW4step 5
+
+# set X y beta0
+set.seed(12345)
+n <- 100
+p <- 2
+
+X <- matrix(rnorm(n*p),n,p)
+beta0 <- matrix(rnorm(p),p,1)
+y <- 2* ((runif(n) <= plogis(X%*%beta0)) + 0) - 1
+
+set_delta=0.5;set_lambda=1e-4;
+
+## calculate L 
+x_norm2_square=numeric(n)
+for(i in 1:n)
+{x_norm2_square[i]=sum(X[i,]^2)}
+L=abs(set_lambda)+1/set_delta*sum(y^2*x_norm2_square)
+
+# get step size 
+t=runif(1,min=0,max=1/L)
+
+#
+try_times=10000;
+x_0=beta0;times=0;
+fx_answer=numeric(try_times);
+
+while(times<try_times){
+  x_1=x_0-t*gradf_hsvm(y,X,beta=x_0,delta=set_delta,lambda=set_lambda);
+  times=times+1;
+  fx_answer[times]=fx_hsvm(y,X,beta=x_1, delta=set_delta,lambda = set_lambda)
+  x_0=x_1;
+}
+
+diff=fx_answer-fx_answer[try_times]
+plot(1:try_times,diff,xlab="iteration k",ylab="difference of function value")
+
+```
+
+**Step 6:** Train an HSVM classifier (with $\lambda = 1e-4$) on the simulated data above using backtracking. Plot the difference $\ell(\V{\beta}_k) - \ell(\V{\beta}_{10000})$ versus the iteration $k$. Comment on the shape of the plot given what you know about the iteration complexity of gradient descent with backtracking.
+
+```{r}
+set.seed(12345)
+n <- 100
+p <- 2
+
+X <- matrix(rnorm(n*p),n,p)
+beta0 <- matrix(rnorm(p),p,1)
+y <- 2* ((runif(n) <= plogis(X%*%beta0)) + 0) - 1
+
+delta=0.5;lambda=1e-4;
+#==============================
+try_times=16;
+fx_answer_back=numeric(try_times);
+
+beta=0.9;alpha=1;r=0.5;
+times=0;
+
+
+x_0=beta0;
+x_1=beta0;
+alpha_current=alpha;
+while(times<try_times){
+  times=times+1;
+  alpha_current=alpha;
+  x_1_grad=gradf_hsvm(y,X,x_1,delta,lambda);
+  
+ while(fx_hsvm(y,X,x_1-alpha_current*x_1_grad,delta,lambda)>=fx_hsvm(y,X,x_1,delta,lambda)-r*alpha_current*sum(x_1_grad^2))
+ {alpha_current=alpha_current*beta;}
+ 
+ x_0=x_1;
+ x_1=x_1-alpha_current*x_1_grad;
+ fx_answer_back[times]=fx_hsvm(y,X,x_1,delta,lambda);
+}
+
+diff_back=fx_answer_back-fx_answer_back[try_times]
+plot(1:try_times,diff_back)
+
+```
+
+**Step 7:** Apply your HSVM classifier on a classification problem of your choice. Randomly split the data up into a training set and a test set. Try different values of $\lambda$ and different fractions of training and test sets and report the classification error rates.
+
+
+Some sources of classification problem data if you're not sure where to start
+
+- http://archive.ics.uci.edu/ml/index.php
+- https://www.kaggle.com/datasets
+
+
+```{r}
+
+phi<-function(t,delta)
+{
+  if(t>1) return(0)
+  if(t<=1-delta) return(1-t-delta/2)
+  if((t<=1)&(t>1-delta)) return((1-t)^2/2/delta)
+}
+
+# read data
+#==============================
+iris=read.table(
+  file="http://archive.ics.uci.edu/ml/machine-learning-databases/iris/iris.data",
+  sep=",")
+
+y_all=c(rep(1,50),rep(-1,100))
+
+X_all=matrix(rep(4*150),nrow=150,ncol=4)
+X_all[,1]=as.numeric(iris[,1])
+X_all[,2]=as.numeric(iris[,2])
+X_all[,3]=as.numeric(iris[,3])
+X_all[,4]=as.numeric(iris[,4])
+
+#set train_set and test_set
+result_table=NULL
+
+for(set_lambda in c(1e-1,1e-2,1e-3)){
+ratio_vector=c(1/9,1/4,1,4,9)
+for(ratio_n in 1:5){
+ratio=NULL;
+ratio=ratio_vector[ratio_n]
+train_set=c(1:(50/(ratio+1)*ratio),50+(1:(100/(ratio+1)*ratio)))
+test_set=c((50/(ratio+1)*ratio+1):50,(51+100/(ratio+1)*ratio):150)
+y_train=y_all[train_set]
+y_test=y_all[test_set]
+X_train=X_all[train_set,]
+X_test=X_all[test_set,]
+
+n=length(train_set);p=4;
+X <- X_train
+beta0 <- matrix(c(0.47,-0.68,-.79,-0.85),p,1)
+y <- y_train
+
+## calculate L and get step size
+#======================
+delta=0.5;
+
+x_norm2_square=numeric(n)
+for(i in 1:n)
+{ x_norm2_square[i]=sum(X[i,]^2) }
+L=abs(set_lambda)+1/set_delta*sum(y^2*x_norm2_square)
+
+t=runif(1,min=0,max=1/L)
+
+### get beta from train data
+#=================
+answer_fixed=gradient_descent_fixed(y, X, b0=beta0, 
+                       t=t, delta=0.5, lambda=set_lambda, max_iter=1e2, tol=1e-1)
+
+# predict the test data
+#===================
+predict_y_test=rep(-1,nrow(X_test))
+beta_fixed=answer_fixed$iterate_value
+x_beta=X_test%*%beta_fixed
+
+for(i in 1:nrow(x_beta)){
+  if(phi(x_beta[i]*1,delta=0.5)<phi(x_beta[i]*(-1),delta=0.5))#1 loss more
+    predict_y_test[i]=1
+}
+
+predict_error_rates=sum(as.numeric(y_test!=predict_y_test))/nrow(X_test)
+result_table=rbind(result_table,c(predict_error_rates,ratio,set_lambda))
+ }
+}
+
+colnames(result_table)=c("prediction error rate","the ratio-train:test","lambda")
+result_table
+
+
+#backtrack
+#========================
+
+
+#set train_set and test_set
+result_table_backtrack=NULL
+
+for(set_lambda in c(1e-1,1e-2,1e-3)){
+  ratio_vector=c(1/9,1/4,1,4,9)
+  for(ratio_n in 1:5){
+     # ratio_n=1;set_lambda=1e-1;
+    ratio=ratio_vector[ratio_n]
+    train_set=c(1:(50/(ratio+1)*ratio),50+(1:(100/(ratio+1)*ratio)))
+    test_set=c((50/(ratio+1)*ratio+1):50,(51+100/(ratio+1)*ratio):150)
+    y_train=y_all[train_set]
+    y_test=y_all[test_set]
+    X_train=X_all[train_set,]
+    X_test=X_all[test_set,]
+    
+    n=length(train_set);p=4;
+    X <- X_train
+    beta0 <- matrix(rnorm(p),p,1)
+    y <- y_train
+    
+    
+    ### get beta from train data
+    #=================
+    answer_backtrack=gradient_descent_backtrack(y, X, b0=beta0, 
+   delta=0.5, lambda=set_lambda, max_iter=1e2, tol=1e-2)
+    
+    # predict the test data
+    #===================
+    predict_y_test_backtrack=rep(-1,nrow(X_test))
+    beta_backtrack=answer_backtrack$iterate_value
+    x_beta=X_test%*%beta_backtrack
+    
+    for(i in 1:nrow(x_beta)){
+      if(phi(x_beta[i]*1,delta=0.5)<phi(x_beta[i]*(-1),delta=0.5))#1 loss more
+        predict_y_test_backtrack[i]=1
+    }
+    predict_error_rates_backtrack=sum(as.numeric(y_test!=predict_y_test_backtrack))/nrow(X_test)
+    result_table_backtrack=rbind(result_table_backtrack,c(predict_error_rates_backtrack,ratio,set_lambda))
+  }
+}
+
+colnames(result_table_backtrack)=c("prediction error rate","the ratio-train:test","lambda")
+result_table_backtrack
+```

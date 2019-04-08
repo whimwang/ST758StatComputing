@@ -1,0 +1,15 @@
+comments for HW2 
+
+proofs: 20/20
+good
+
+codes and tests: 18/20
+you did not update your package document, so I cannot access your functions after loading your package
+
+plots: 15/20
+1. first plot not scaling as expected -2
+2. second plot not scaling as expected -2
+
+no explanation for your plot -1
+
+53/60
